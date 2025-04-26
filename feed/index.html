@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Feed | Yapper</title>
+    <link rel="stylesheet" href="../css/style.css" />
+</head>
+
+<body class="bg-gray-800 min-h-screen">
+    <header class="bg-gray-900 shadow-md px-4 py-3 flex items-center justify-between md:px-8">
+        <a href="/" class="text-xl font-bold text-yellow-400">Yapper</a>
+
+        <form class="flex items-center ml-6">
+            <input type="search" placeholder="Search posts..."
+                class="p-2 rounded-l focus:outline-none bg-gray-800 text-white" />
+            <button type="submit" class="bg-yellow-400 px-4 py-2 rounded-r hover:bg-yellow-700">
+                Search
+            </button>
+        </form>
+
+        <nav class="hidden md:flex space-x-6 text-sm items-center">
+            <a href="/feed/index.html" class="text-yellow-300 hover:text-yellow-600 font-medium">Feed</a>
+            <a href="/profile/index.html" class="text-yellow-300 hover:text-yellow-600 font-medium">Profile</a>
+            <a href="/" class="text-yellow-300 hover:text-red-500 font-medium">Logout</a>
+
+
+        </nav>
+
+        <details class="md:hidden relative">
+            <summary class="cursor-pointer p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 list-none">
+                <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16">
+                    </path>
+                </svg>
+            </summary>
+            <div class="absolute right-0 mt-2 w-40 bg-gray-900 border rounded shadow-md py-2 z-10">
+                <a href="/feed/index.html" class="block text-yellow-300 px-4 py-2 hover:bg-gray-100 text-sm">Feed</a>
+                <a href="/profile/index.html" class="block text-yellow-300 px-4 py-2 hover:bg-gray-100 text-sm">Profile</a>
+                <a href="/" class="block text-yellow-300 px-4 py-2 hover:bg-gray-100 text-sm text-red-500">Logout</a>
+            </div>
+        </details>
+    </header>
+
+
+    <main class="p-4 mt-4 max-w-2xl mx-auto space-y-6">
+
+
+        <section class="flex md:hidden p-4">
+            <form class="flex w-full">
+                <input type="search" placeholder="Search posts..."
+                    class="w-full p-2 border border-gray-300 rounded-l focus:outline-none focus:ring-2 focus:ring-blue-400" />
+                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-r hover:bg-blue-700">
+                    Search
+                </button>
+            </form>
+        </section>
+
+        <form class="bg-gray-900 p-4 rounded shadow space-y-2">
+            <textarea placeholder="Write a post..."
+                class="bg-gray-800 text-white w-full p-2 rounded resize-none focus:outline-none"></textarea>
+            <button type="submit" class="bg-yellow-400 px-5 py-2 rounded hover:bg-yellow-700">Post</button>
+        </form>
+
+        <div class="flex justify-end">
+            <select class="rounded p-2 bg-gray-900 text-gray-400">
+                <option value="latest">Sort by: Latest</option>
+                <option value="popular">Sort by: Popular</option>
+            </select>
+        </div>
+
+        <section class="space-y-4">
+            <div class="bg-gray-900 p-6 rounded shadow flex items-start space-x-4 relative">
+                <img src="https://www.ssbwiki.com/images/thumb/4/44/Mario_SSBU.png/600px-Mario_SSBU.png"
+                    alt="Mario Avatar" class="w-14 h-14 rounded-full object-cover">
+                <div>
+                    <h3 class="font-semibold text-gray-100">Mario</h3>
+                    <p class="text-gray-400 text-sm">Just saved the princess again! 🍄👑 #PlumberLife</p>
+                </div>
+                <button
+                    class="like-button absolute bottom-2 right-2 flex items-center space-x-1 text-gray-500 hover:text-yellow-400 focus:outline-none transition-colors duration-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                        <path
+                            d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" />
+                    </svg>
+                    <span class="like-count text-sm text-white">0</span> <!-- Counter starts at 0 -->
+                </button>
+            </div>
+            </div>
+
+            <div class="bg-gray-900 p-6 rounded shadow flex items-start space-x-4 relative">
+                <img src="https://www.ssbwiki.com/images/thumb/8/84/Link_SSBU.png/600px-Link_SSBU.png" alt="Link Avatar"
+                    class="w-14 h-14 rounded-full object-cover">
+                <div>
+                    <h3 class="font-semibold text-gray-100">Link</h3>
+                    <p class="text-gray-400 text-sm">Another dungeon, another victory! 🗡️🛡️"</p>
+                </div>
+                <button
+                    class="like-button absolute bottom-2 right-2 flex items-center space-x-1 text-gray-500 hover:text-yellow-400 focus:outline-none transition-colors duration-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                        <path
+                            d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" />
+                    </svg>
+                    <span class="like-count text-sm text-white">0</span> <!-- Counter starts at 0 -->
+                </button>
+            </div>
+            </div>
+
+            <div class="bg-gray-900 p-6 rounded shadow flex items-start space-x-4 relative">
+                <img src="https://www.ssbwiki.com/images/thumb/c/c8/Zelda_SSBU.png/600px-Zelda_SSBU.png"
+                    alt="Zelda Avatar" class="w-14 h-14 rounded-full object-cover">
+                <div>
+                    <h3 class="font-semibold text-gray-100">Zelda</h3>
+                    <p class="text-gray-400 text-sm">Studying ancient magic 📜✨ #Wisdom</p>
+                </div>
+                <button
+                    class="like-button absolute bottom-2 right-2 flex items-center space-x-1 text-gray-500 hover:text-yellow-400 focus:outline-none transition-colors duration-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                        <path
+                            d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" />
+                    </svg>
+                    <span class="like-count text-sm text-white">0</span> <!-- Counter starts at 0 -->
+                </button>
+            </div>
+            </div>
+
+            <div class="bg-gray-900 p-6 rounded shadow flex items-start space-x-4 relative">
+                <img src="https://www.ssbwiki.com/images/thumb/0/07/Kirby_SSBU.png/600px-Kirby_SSBU.png"
+                    alt="Kirby Avatar" class="w-14 h-14 rounded-full object-cover">
+                <div>
+                    <h3 class="font-semibold text-gray-100">Kirby</h3>
+                    <p class="text-gray-400 text-sm">Yummy adventures today 🍰🍓</p>
+                </div>
+                <button
+                    class="like-button absolute bottom-2 right-2 flex items-center space-x-1 text-gray-500 hover:text-yellow-400 focus:outline-none transition-colors duration-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                        <path
+                            d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" />
+                    </svg>
+                    <span class="like-count text-sm text-white">0</span> <!-- Counter starts at 0 -->
+                </button>
+            </div>
+            </div>
+
+            <div class="bg-gray-900 p-6 rounded shadow flex items-start space-x-4 relative">
+                <img src="https://www.ssbwiki.com/images/thumb/9/93/Pikachu_SSBU.png/600px-Pikachu_SSBU.png"
+                    alt="Pikachu Avatar" class="w-14 h-14 rounded-full object-cover">
+                <div>
+                    <h3 class="font-semibold text-gray-100">Pikachu</h3>
+                    <p class="text-gray-400 text-sm">⚡ Electric vibes only! ⚡ #PikaPower</p>
+                </div>
+                <button
+                    class="like-button absolute bottom-2 right-2 flex items-center space-x-1 text-gray-500 hover:text-yellow-400 focus:outline-none transition-colors duration-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                        <path
+                            d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" />
+                    </svg>
+                    <span class="like-count text-sm text-white">0</span> <!-- Counter starts at 0 -->
+                </button>
+            </div>
+            </div>
+
+            <div class="bg-gray-900 p-6 rounded shadow flex items-start space-x-4 relative">
+                <img src="https://www.ssbwiki.com/images/thumb/c/c9/Donkey_Kong_SSBU.png/600px-Donkey_Kong_SSBU.png"
+                    alt="Donkey Kong Avatar" class="w-14 h-14 rounded-full object-cover">
+                <div>
+                    <h3 class="font-semibold text-gray-100">Donkey Kong</h3>
+                    <p class="text-gray-400 text-sm">Banana hoarder and proud! 🍌👊</p>
+                </div>
+                <button
+                    class="like-button absolute bottom-2 right-2 flex items-center space-x-1 text-gray-500 hover:text-yellow-400 focus:outline-none transition-colors duration-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                        <path
+                            d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" />
+                    </svg>
+                    <span class="like-count text-sm text-white">0</span> <!-- Counter starts at 0 -->
+                </button>
+            </div>
+        </section>
+
+
+    </main>
+    <script>
+        document.querySelectorAll('.like-button').forEach(button => {
+            button.addEventListener('click', () => {
+                const countSpan = button.querySelector('.like-count');
+                let count = parseInt(countSpan.textContent);
+
+                if (button.classList.contains('liked')) {
+                    button.classList.remove('liked', 'text-yellow-400');
+                    button.classList.add('text-gray-500');
+                    count -= 1;
+                } else {
+                    button.classList.add('liked', 'text-yellow-400');
+                    button.classList.remove('text-gray-500');
+                    count += 1;
+                }
+
+                countSpan.textContent = count;
+            });
+        });
+    </script>
+
+</body>
+
+</html>
