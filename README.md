@@ -136,11 +136,3 @@ This project is licensed under the **MIT License** — free for personal and edu
 ## Contact
 
 [My LinkedIn Profile](https://www.linkedin.com/in/sigrid-johanne-husev%C3%A5g-132513a5/)
-
----
-
-# 🎉 Thanks for checking out Yapper!
-<<<<<<< HEAD
-
-=======
->>>>>>> main
