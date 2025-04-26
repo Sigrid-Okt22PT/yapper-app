@@ -5,7 +5,7 @@
 
 ## Description
 
-Welcome to **Yapper** — a playful social media frontend built using **HTML**, **TailwindCSS**, and **SASS**.\
+Welcome to **Yapper** — a playful social media frontend built using **HTML**, **TailwindCSS**.\
 Yapper provides a minimal, responsive platform where users can create posts, search feeds, view profiles, and interact using a like system.
 
 This project focuses on frontend development using TailwindCSS to create a modern, mobile-first, fully responsive design.
@@ -42,13 +42,13 @@ This project focuses on frontend development using TailwindCSS to create a moder
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/Sigrid-Okt22PT/yapper-social-media-app.git
+   git clone -b css-frameworks https://github.com/Sigrid-Okt22PT/yapper-app.git
    ```
 
 2. **Navigate into your project directory:**
 
    ```bash
-   cd your-repo-name
+   cd yapper-app
    ```
 
 3. **Install dependencies:**
@@ -109,7 +109,7 @@ If you'd like to contribute:
 1. **Fork** this repository.
 2. **Clone** your fork:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git
+   git clone -b css-frameworks https://github.com/Sigrid-Okt22PT/yapper-app.git
    ```
 3. **Create a new branch:**
    ```bash
