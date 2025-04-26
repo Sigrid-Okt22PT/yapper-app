@@ -140,3 +140,4 @@ This project is licensed under the **MIT License** — free for personal and edu
 ---
 
 # 🎉 Thanks for checking out Yapper!
+
