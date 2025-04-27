@@ -18,6 +18,7 @@ This project focuses on frontend development using TailwindCSS to create a moder
 - [Table of Contents](#table-of-contents)
 - [Built With](#built-with)
 - [Setup and Installation](#setup-and-installation)
+- [Testing Locally](#testing-locally)
 - [Usage](#usage)
 - [Branching Strategy](#branching-strategy)
 - [Development Scripts](#development-scripts)
@@ -68,6 +69,20 @@ This project focuses on frontend development using TailwindCSS to create a moder
    ```bash
    npm run build
    ```
+
+---
+---
+
+## Testing Locally
+
+When opening `.html` files directly in a browser without a server, navigation between pages may not work correctly.  
+To fix this, you can use **Live Preview**:
+
+1. Install the **Live Preview** extension in Visual Studio Code.
+2. Open the project folder.
+3. Right-click on `index.html` and select **Show Preview**.
+
+This launches your project at a local address (e.g., `http://127.0.0.1:3000/`) and enables full navigation functionality.
 
 ---
 
