@@ -84,11 +84,13 @@ To fix this, you can use **Live Preview**:
 
 This launches your project at a local address (e.g., `http://127.0.0.1:3000/`) and enables full navigation functionality.
 
+Login with any email address and a password more then 8 characters.
+
 ---
 
 ## Usage
 
-- **Authentication Page**: Log in or register using the form at `/index.html`.
+- **Authentication Page**: Log in or register using the form at `/index.html`. 
 - **Feed Page**: Browse user posts, search content, create new posts, like/unlike posts at `/feed/index.html`.
 - **Profile Page**: View user profile image, username, followers/following stats, and user posts at `/profile/index.html`.
 

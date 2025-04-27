@@ -13,7 +13,7 @@
     <header class="bg-gray-900 shadow-md px-4 py-3 flex items-center justify-between md:px-8">
         <a href="/" class="text-xl font-bold text-yellow-400">Yapper</a>
 
-        <form class="flex items-center ml-6">
+        <form class="hidden md:flex items-center ml-6">
             <input type="search" placeholder="Search posts..."
                 class="p-2 rounded-l focus:outline-none bg-gray-800 text-white" />
             <button type="submit" class="bg-yellow-400 px-4 py-2 rounded-r hover:bg-yellow-700">
@@ -22,8 +22,8 @@
         </form>
 
         <nav class="hidden md:flex space-x-6 text-sm items-center">
-            <a href="/feed/index.html" class="text-yellow-300 hover:text-yellow-600 font-medium">Feed</a>
-            <a href="/profile/index.html" class="text-yellow-300 hover:text-yellow-600 font-medium">Profile</a>
+            <a href="/feed" class="text-yellow-300 hover:text-yellow-600 font-medium">Feed</a>
+            <a href="/profile" class="text-yellow-300 hover:text-yellow-600 font-medium">Profile</a>
             <a href="/" class="text-yellow-300 hover:text-red-500 font-medium">Logout</a>
 
 
@@ -38,8 +38,8 @@
                 </svg>
             </summary>
             <div class="absolute right-0 mt-2 w-40 bg-gray-900 border rounded shadow-md py-2 z-10">
-                <a href="/feed/index.html" class="block text-yellow-300 px-4 py-2 hover:bg-gray-100 text-sm">Feed</a>
-                <a href="/profile/index.html" class="block text-yellow-300 px-4 py-2 hover:bg-gray-100 text-sm">Profile</a>
+                <a href="/feed" class="block text-yellow-300 px-4 py-2 hover:bg-gray-100 text-sm">Feed</a>
+                <a href="/profile" class="block text-yellow-300 px-4 py-2 hover:bg-gray-100 text-sm">Profile</a>
                 <a href="/" class="block text-yellow-300 px-4 py-2 hover:bg-gray-100 text-sm text-red-500">Logout</a>
             </div>
         </details>
@@ -50,10 +50,10 @@
 
 
         <section class="flex md:hidden p-4">
-            <form class="flex w-full">
+            <form class="flex items-center ml-6">
                 <input type="search" placeholder="Search posts..."
-                    class="w-full p-2 border border-gray-300 rounded-l focus:outline-none focus:ring-2 focus:ring-blue-400" />
-                <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-r hover:bg-blue-700">
+                    class="p-2 rounded-l focus:outline-none bg-gray-700 text-white" />
+                <button type="submit" class="bg-yellow-400 px-4 py-2 rounded-r hover:bg-yellow-700">
                     Search
                 </button>
             </form>
