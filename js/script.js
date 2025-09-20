@@ -8,15 +8,7 @@ const TOKEN_KEY = "yapper_token";
 
 export const TOKEN = localStorage.getItem(TOKEN_KEY) || "";
 
-// ---------- utils ----------
-export const $ = (s, r = document) => r.querySelector(s);
-export const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
-export const el = (t, cls = "", html = "") => {
-  const n = document.createElement(t);
-  if (cls) n.className = cls;
-  if (html) n.innerHTML = html;
-  return n;
-};
+// ---------- utils (no DOM helpers) ----------
 export const fmtDate = (iso) =>
   new Date(iso).toLocaleString(undefined, {
     year: "numeric",
@@ -90,7 +82,7 @@ export async function apiRequest(pathOrUrl, init = {}) {
 export const apiAuth   = (p, init)   => apiRequest(`/auth${p}`, init);           // e.g. apiAuth('/login')
 export const apiSocial = (p, init)   => apiRequest(`/social${p}`, init);         // e.g. apiSocial('/posts')
 
-// ---------- Auth API ----------
+// acsess to API
 export async function login({ email, password }) {
   const { data } = await apiAuth("/login", {
     method: "POST",
@@ -114,36 +106,40 @@ export async function register({ name, email, password, avatar }) {
 }
 
 export function logout() {
-  localStorage.removeItem(TOKEN_KEY);
-  location.href = "../index.html";
+  localStorage.removeItem(TOKEN_KEY); // correct key
+  localStorage.removeItem("user");
+  window.location.href = "../index.html";
 }
 
-// ---------- FEED PAGE ONLY ----------
+
+
+// 
 const postsGrid = document.querySelector("[data-posts]");
 const feedback = document.querySelector("[data-feed-feedback]");
-const searchForms = $$("form[data-search-form]");
-const desktopSearch = $("#desktop-search");
+const searchForms = Array.from(document.querySelectorAll("form[data-search-form]"));
+const desktopSearch = document.querySelector("#desktop-search");
 const pagination = document.querySelector("[data-pagination]");
 const limitSelect = document.querySelector("[data-limit]");
-const logoutBtn = document.querySelector("[data-logout]");
-logoutBtn?.addEventListener("click", (e) => {
-  e.preventDefault();
-  logout();
+const logoutLinks = document.querySelectorAll("[data-logout]");
+
+// attach logout listener to each
+logoutLinks.forEach(link => {
+  link.addEventListener("click", (e) => {
+    e.preventDefault();
+    logout();
+  });
 });
 
-// Mirror mobile nav on desktop (if empty)
+// mobile nav 
 const navDesktop = document.querySelector("header nav");
 if (navDesktop && navDesktop.children.length === 0) {
   navDesktop.innerHTML = `
     <a href="./" class="text-yellow-300 hover:underline">Feed</a>
     <a href="../profile/" class="text-yellow-300 hover:underline">Profile</a>
     <a href="./create-post.html" class="text-yellow-300 hover:underline">New Post</a>
-    <button data-logout class="text-red-400 hover:underline">Logout</button>
+    <a href="#" data-logout class="text-red-400 hover:underline">Logout</a>
   `;
-  navDesktop.querySelector("[data-logout]")?.addEventListener("click", (e) => {
-    e.preventDefault();
-    logout();
-  });
+  
 }
 
 // ---------- state ----------
@@ -157,7 +153,7 @@ const state = {
 };
 let currentAbort = null;
 
-// ---------- UI helpers ----------
+// ---------- UI helpers (vanilla DOM only) ----------
 function setFeedback(text = "") {
   if (feedback) feedback.textContent = text;
 }
@@ -165,10 +161,8 @@ function setFeedback(text = "") {
 function skeletonCards(n = 8) {
   const frag = document.createDocumentFragment();
   for (let i = 0; i < n; i++) {
-    const card = el(
-      "article",
-      "bg-gray-900 rounded-lg overflow-hidden shadow animate-pulse"
-    );
+    const card = document.createElement("article");
+    card.className = "bg-gray-900 rounded-lg overflow-hidden shadow animate-pulse";
     card.innerHTML = `
       <div class="h-44 bg-gray-700"></div>
       <div class="p-4 space-y-3">
@@ -184,10 +178,8 @@ function skeletonCards(n = 8) {
 }
 
 function emptyMessage(msg = "No posts found.") {
-  const box = el(
-    "div",
-    "col-span-full text-center text-yellow-300 bg-gray-900 p-6 rounded"
-  );
+  const box = document.createElement("div");
+  box.className = "col-span-full text-center text-yellow-300 bg-gray-900 p-6 rounded";
   box.textContent = msg;
   return box;
 }
@@ -221,10 +213,8 @@ function renderCard(p) {
     `https://picsum.photos/seed/yap-${encodeURIComponent(id)}/600/360`;
   const alt = media?.alt || (title ? `Image for ${title}` : "Post image");
 
-  const card = el(
-    "article",
-    "bg-gray-900 rounded-lg overflow-hidden shadow hover:shadow-lg transition"
-  );
+  const card = document.createElement("article");
+  card.className = "bg-gray-900 rounded-lg overflow-hidden shadow hover:shadow-lg transition";
 
   const tagChips = tags
     .slice(0, 4)
@@ -261,13 +251,14 @@ function renderCard(p) {
   `;
 
   // Tag filtering
-  card.querySelectorAll("[data-tag]").forEach((btn) =>
+  Array.from(card.querySelectorAll("[data-tag]")).forEach((btn) =>
     btn.addEventListener("click", () => {
-      state._tag = btn.dataset.tag;
+      state._tag = btn.getAttribute("data-tag");
       state.q = "";
       state.page = 1;
-      $("[name=search]")?.value && ($("[name=search]").value = "");
-      desktopSearch && (desktopSearch.value = "");
+      const searchInput = document.querySelector("[name=search]");
+      if (searchInput) searchInput.value = "";
+      if (desktopSearch) desktopSearch.value = "";
       loadFeed();
       setFeedback(`Filtering by #${state._tag}`);
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -287,13 +278,12 @@ function renderPagination(meta) {
   const isFirstPage = currentPage <= 1;
   const isLastPage = currentPage >= pageCount;
 
-  const bar = el("div", "flex items-center gap-2 flex-wrap w-full");
+  const bar = document.createElement("div");
+  bar.className = "flex items-center gap-2 flex-wrap w-full";
 
-  const prev = el(
-    "button",
-    "bg-gray-900 text-yellow-300 border border-gray-700 px-3 py-1 rounded disabled:opacity-40",
-    "Prev"
-  );
+  const prev = document.createElement("button");
+  prev.className = "bg-gray-900 text-yellow-300 border border-gray-700 px-3 py-1 rounded disabled:opacity-40";
+  prev.textContent = "Prev";
   prev.disabled = isFirstPage;
   prev.addEventListener("click", () => {
     if (!isFirstPage) {
@@ -311,6 +301,7 @@ function renderPagination(meta) {
     end = pageCount;
     start = Math.max(1, end - windowSize + 1);
   }
+
   if (start > 1) {
     bar.appendChild(pageBtn(1));
     if (start > 2) bar.appendChild(ellipsis());
@@ -321,11 +312,9 @@ function renderPagination(meta) {
     bar.appendChild(pageBtn(pageCount));
   }
 
-  const next = el(
-    "button",
-    "bg-gray-900 text-yellow-300 border border-gray-700 px-3 py-1 rounded disabled:opacity-40",
-    "Next"
-  );
+  const next = document.createElement("button");
+  next.className = "bg-gray-900 text-yellow-300 border border-gray-700 px-3 py-1 rounded disabled:opacity-40";
+  next.textContent = "Next";
   next.disabled = isLastPage;
   next.addEventListener("click", () => {
     if (!isLastPage) {
@@ -336,25 +325,21 @@ function renderPagination(meta) {
   });
   bar.appendChild(next);
 
-  const stats = el(
-    "div",
-    "ml-auto text-xs text-yellow-300",
-    `Page ${currentPage} of ${pageCount} · ${typeof totalCount === "number" ? totalCount : "?"} posts`
-  );
+  const stats = document.createElement("div");
+  stats.className = "ml-auto text-xs text-yellow-300";
+  stats.textContent = `Page ${currentPage} of ${pageCount} · ${typeof totalCount === "number" ? totalCount : "?"} posts`;
 
   pagination.appendChild(bar);
   pagination.appendChild(stats);
 
   function pageBtn(p) {
-    const b = el(
-      "button",
-      `min-w-8 px-3 py-1 rounded border ${
-        p === currentPage
-          ? "bg-yellow-400 text-gray-900 border-yellow-400 font-semibold"
-          : "bg-gray-900 text-yellow-300 border-gray-700 hover:bg-gray-800"
-      }`,
-      String(p)
-    );
+    const b = document.createElement("button");
+    b.className = `min-w-8 px-3 py-1 rounded border ${
+      p === currentPage
+        ? "bg-yellow-400 text-gray-900 border-yellow-400 font-semibold"
+        : "bg-gray-900 text-yellow-300 border-gray-700 hover:bg-gray-800"
+    }`;
+    b.textContent = String(p);
     b.disabled = p === currentPage;
     b.addEventListener("click", () => {
       if (state.page !== p) {
@@ -366,7 +351,10 @@ function renderPagination(meta) {
     return b;
   }
   function ellipsis() {
-    return el("span", "px-1 text-yellow-300 select-none", "…");
+    const span = document.createElement("span");
+    span.className = "px-1 text-yellow-300 select-none";
+    span.textContent = "…";
+    return span;
   }
 }
 
@@ -387,7 +375,7 @@ async function loadFeed() {
   postsGrid.innerHTML = "";
   postsGrid.appendChild(skeletonCards(8));
   setFeedback("Loading…");
-  pagination && (pagination.innerHTML = "");
+  if (pagination) pagination.innerHTML = "";
 
   try {
     const baseParams = { page: state.page, limit: state.limit, _author: true };

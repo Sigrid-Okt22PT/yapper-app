@@ -8,50 +8,173 @@
 <body class="bg-gray-800 min-h-screen" data-page="post">
   <main class="p-4 mt-4 max-w-2xl mx-auto space-y-6">
     <section id="post" class="bg-gray-900 p-4 rounded shadow"></section>
-    <p id="postFeedback" class="text-sm text-yellow-300 min-h-[1.25rem]" aria-live="polite"></p>
-  </main>
 
- <script type="module">
-  import { requireAuth, readJWT } from '../js/script.js';
+<section class="bg-gray-900 p-4 rounded shadow">
+  <h2 class="text-lg font-semibold text-gray-100 mb-2">Reactions</h2>
+  <div class="flex gap-2">
+    <button class="px-3 py-1 rounded bg-gray-800 text-white" data-react="❤️">❤️</button>
+    <button class="px-3 py-1 rounded bg-gray-800 text-white" data-react="👍">👍</button>
+    <button class="px-3 py-1 rounded bg-gray-800 text-white" data-react="🎉">🎉</button>
+    <button class="px-3 py-1 rounded bg-gray-800 text-white" data-react="😂">😂</button>
+  </div>
+</section>
+
+<section class="bg-gray-900 p-4 rounded shadow">
+  <h2 class="text-lg font-semibold text-gray-100 mb-3">Comments</h2>
+  <form id="commentForm" class="flex gap-2">
+    <input name="comment" placeholder="Write a comment…" class="flex-1 p-2 rounded bg-gray-800 text-white" />
+    <button class="bg-yellow-400 px-4 py-2 rounded font-semibold">Post</button>
+  </form>
+  <div id="commentsList" class="mt-4 space-y-3"></div>
+</section>
+
+<p id="postFeedback" class="text-sm text-yellow-300 min-h-[1.25rem]" aria-live="polite"></p>
+</main>
+
+<script type="module">
+  import { requireAuth, readJWT, fmtDate } from '../js/script.js';
   import { getPost, updatePost, deletePost, reactToPost, createComment } from '../js/posts.js';
 
   if (!requireAuth("../index.html")) throw new Error("unauthenticated");
 
   const id = new URLSearchParams(location.search).get("id");
   const me = readJWT();
-  // ...load + render like before
+  const box = document.getElementById('post');
+  const fb = document.getElementById('postFeedback');
+  const commentsList = document.getElementById('commentsList');
 
+  async function load() {
+    if (!id) { box.textContent = "Missing post id"; return; }
+
+    try {
+      const { data: p } = await getPost(id, { _author:true, _comments:true, _reactions:true });
+
+      // ---- destructuring (curriculum-aligned)
+      const {
+        title = "(untitled)",
+        body = "",
+        media,
+        tags = [],
+        created,
+        author = {},
+        comments = []
+      } = p || {};
+      const isMine = author?.name === me?.name;
+
+      box.innerHTML = `
+        <h1 class="text-2xl font-bold text-yellow-400">${title}</h1>
+        <div class="text-xs text-gray-400 mb-2">By ${author?.name || "Unknown"} · ${fmtDate(created)}</div>
+        ${media?.url ? `<img src="${media.url}" alt="${media.alt || ""}" class="w-full rounded my-4" />` : ''}
+        <p class="text-gray-200 whitespace-pre-wrap">${body}</p>
+        <div class="text-xs text-gray-400 mt-2">Tags: ${tags.length ? tags.join(", ") : "None"}</div>
+
+        ${isMine ? `
+        <details class="mt-6">
+          <summary class="cursor-pointer text-yellow-300">Edit post</summary>
+          <form id="editForm" class="mt-3 space-y-3">
+            <input name="title" class="w-full p-2 rounded bg-gray-800 text-white" placeholder="Title" value="${title}" />
+            <textarea name="body" rows="4" class="w-full p-2 rounded bg-gray-800 text-white" placeholder="Body">${body}</textarea>
+            <input name="tags" class="w-full p-2 rounded bg-gray-800 text-white" placeholder="tag1, tag2" value="${tags.join(", ")}" />
+            <input name="mediaUrl" class="w-full p-2 rounded bg-gray-800 text-white" placeholder="Image URL" value="${media?.url || ""}" />
+            <input name="mediaAlt" class="w-full p-2 rounded bg-gray-800 text-white" placeholder="Image alt" value="${media?.alt || ""}" />
+            <div class="flex gap-2">
+              <button class="bg-yellow-400 px-4 py-2 rounded">Save</button>
+              <button id="deleteBtn" type="button" class="bg-red-500 px-4 py-2 rounded text-white">Delete</button>
+            </div>
+          </form>
+        </details>
+        ` : ``}
+      `;
+
+      // comments render (also destructured)
+      commentsList.innerHTML = comments.length
+        ? comments.map(({ body, created, author }) => `
+            <article class="bg-gray-800 p-3 rounded">
+              <div class="text-sm text-gray-200">${body}</div>
+              <div class="text-xs text-gray-400 mt-1">by ${author?.name || "Unknown"} · ${fmtDate(created)}</div>
+            </article>
+          `).join("")
+        : `<p class="text-gray-300">No comments yet.</p>`;
+
+      if (isMine) {
+        document.getElementById('editForm')?.addEventListener('submit', onEdit);
+        document.getElementById('deleteBtn')?.addEventListener('click', onDelete);
+      }
+    } catch (err) {
+      box.textContent = err.message || 'Failed to load post.';
+    }
+  }
+
+  /** Submit handler for editing a post (PUT /social/posts/:id). */
   async function onEdit(e) {
     e.preventDefault();
-    // build payload...
-    await updatePost(id, payload);
-    // reload...
+    fb.textContent = "Saving…";
+    const fd = new FormData(e.currentTarget);
+
+    const title = String(fd.get('title')||'').trim();
+    const body  = String(fd.get('body') ||'').trim();
+    const tags  = String(fd.get('tags') ||'')
+      .split(',').map(t=>t.trim()).filter(Boolean);
+
+    const mediaUrl = String(fd.get('mediaUrl')||'').trim();
+    const mediaAlt = String(fd.get('mediaAlt')||'').trim();
+
+    const payload = { title, body, tags };
+    if (mediaUrl) payload.media = { url: mediaUrl, alt: mediaAlt || title };
+
+    try {
+      await updatePost(id, payload);
+      fb.textContent = "Saved!";
+      await load();
+    } catch (err) {
+      fb.textContent = err.message || "Failed to save.";
+    }
   }
 
   async function onDelete() {
     if (!confirm("Delete this post?")) return;
-    await deletePost(id);
-    location.href = "../feed/";
+    fb.textContent = "Deleting…";
+    try {
+      await deletePost(id);
+      fb.textContent = "Deleted.";
+      setTimeout(()=>location.href="../feed/", 600);
+    } catch (err) {
+      fb.textContent = err.message || "Failed to delete.";
+    }
   }
 
-  // Optional: reactions
+  // Reactions
   document.querySelectorAll("[data-react]").forEach(btn => {
     btn.addEventListener("click", async () => {
-      const symbol = btn.dataset.react;
-      await reactToPost(id, symbol);
-      // reload counts or optimistic update
+      try {
+        btn.disabled = true;
+        await reactToPost(id, btn.dataset.react);
+        await load(); // refresh counts
+      } catch (e) {
+        fb.textContent = e.message || "Failed to react.";
+      } finally {
+        btn.disabled = false;
+      }
     });
   });
 
-  // Optional: comments
+  // Comments
   document.getElementById("commentForm")?.addEventListener("submit", async (e) => {
     e.preventDefault();
     const text = new FormData(e.currentTarget).get("comment");
     if (!String(text).trim()) return;
-    await createComment(id, String(text));
-    // reload comments...
+    try {
+      await createComment(id, String(text));
+      e.currentTarget.reset();
+      await load();
+    } catch (err) {
+      fb.textContent = err.message || "Failed to comment.";
+    }
   });
+
+  load();
 </script>
+
 
 </body>
 </html>

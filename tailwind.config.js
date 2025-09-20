@@ -1,8 +1,13 @@
 module.exports = {
-	content: ["./**/*.{html,js}","!./node_modules/**/*"],
-	theme: {
-		extend: {},
-	},
-	plugins: [],
+  content: [
+    "./index.html",
+    "./feed/**/*.html",
+    "./profile/**/*.html",
+    "./js/**/*.js",
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
 }
 

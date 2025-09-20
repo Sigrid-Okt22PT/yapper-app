@@ -1,101 +1,286 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Profile | Yapper</title>
-    <meta name="description"
-        content="Yapper - A playful social media frontend built with Tailwind CSS. Create posts, like posts, view user profiles, and enjoy a minimal responsive design." />
-    <link rel="stylesheet" href="../css/style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profile | Yapper</title>
+  <link rel="stylesheet" href="../css/style.css" />
 </head>
-
 <body class="bg-gray-800 min-h-screen" data-page="profile">
-    <header class="bg-gray-900 shadow-md px-4 py-3 flex items-center justify-between md:px-8">
-        <a href="../" class="text-xl font-bold text-yellow-400">Yapper</a>
+  <header class="bg-gray-900 shadow-md px-4 py-3 flex items-center justify-between md:px-8">
+    <a href="../" class="text-xl font-bold text-yellow-400">Yapper</a>
+    <nav class="hidden md:flex space-x-6 text-sm items-center">
+      <a href="../feed/" class="text-yellow-300 hover:text-gray-300 font-medium">Feed</a>
+      <a href="./" class="text-yellow-300 hover:text-gray-300 font-medium">My Profile</a>
+      <a href="#" data-logout class="text-yellow-300 hover:text-red-500 font-medium">Logout</a>
+    </nav>
+  </header>
 
-        <nav class="hidden md:flex space-x-6 text-sm items-center">
-            <a href="../feed/" class="text-yellow-300 hover:text-gray-300 font-medium">Feed</a>
-            <a href="./" class="text-yellow-300 hover:text-gray-300 font-medium">Profile</a>
-            <a href="#" data-logout class="text-yellow-300 hover:text-red-500 font-medium">Logout</a>
-        </nav>
+  <main class="p-4 mt-4 max-w-5xl mx-auto space-y-6">
+    <!-- Profile header -->
+    <section class="bg-gray-900 rounded shadow overflow-hidden">
+      <div class="h-40 bg-gray-700 relative">
+        <img data-profile-banner class="w-full h-32 object-cover hidden" alt="Profile banner" />
+      </div>
 
-        <details class="md:hidden relative">
-            <summary class="cursor-pointer p-2 rounded focus:outline-none focus:ring-2 focus:ring-yellow-400 list-none">
-                <svg class="w-6 h-6 text-gray-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16">
-                    </path>
-                </svg>
-            </summary>
-            <div class="absolute right-0 mt-2 w-40 bg-gray-900 border rounded shadow-md py-2 z-10">
-                <a href="../feed/" class="block text-yellow-300 px-4 py-2 hover:bg-gray-800 text-sm">Feed</a>
-                <a href="./" class="block text-yellow-300 px-4 py-2 hover:bg-gray-800 text-sm">Profile</a>
-                <a href="#" data-logout class="block text-yellow-300 px-4 py-2 hover:bg-gray-800 text-sm text-red-500">Logout</a>
-            </div>
-        </details>
-    </header>
+      <div class="p-4 md:p-6 grid grid-cols-1 md:grid-cols-[auto_1fr_auto] gap-4 items-center">
+        <img data-profile-avatar src="https://placehold.co/160x160?text=Avatar" alt="Profile avatar"
+             class="w-32 h-32 rounded-full object-cover border-4 border-gray-900" />
+        <div class="space-y-1">
+          <h1 data-profile-name class="text-2xl font-bold text-yellow-400">Loading…</h1>
+          <p data-profile-email class="text-gray-400 text-sm"></p>
+          <p data-profile-bio class="text-gray-200"></p>
+          <div class="flex gap-4 text-sm text-gray-300">
+            <span><strong data-count-posts>0</strong> posts</span>
+            <span><strong data-count-followers>0</strong> followers</span>
+            <span><strong data-count-following>0</strong> following</span>
+          </div>
+        </div>
 
-    <main class="p-4 mt-4 max-w-2xl mx-auto space-y-6">
-        <section class="bg-gray-900 p-6 rounded shadow flex flex-col sm:flex-row sm:items-center sm:space-x-4 gap-4">
-            <img data-profile-avatar src="https://placehold.co/160x160?text=Avatar" alt="Profile avatar"
-                class="w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover" />
-            <div class="space-y-2">
-                <h2 data-profile-name class="text-2xl font-bold text-gray-100">Loading profile…</h2>
-                <p data-profile-email class="text-gray-400 text-sm"></p>
-                <p data-profile-bio class="text-gray-300 text-sm">Fetching profile details…</p>
-                <button data-follow-toggle
-                    class="mt-3 bg-yellow-400 px-4 py-1 rounded hover:bg-yellow-500 hidden">Follow</button>
-            </div>
-        </section>
+        <div class="flex flex-col gap-2 items-stretch justify-center">
+          <!-- Only visible when viewing someone else -->
+          <button data-follow-toggle class="hidden bg-yellow-400 hover:bg-yellow-500 px-4 py-2 rounded font-semibold">Follow</button>
+          <!-- Quick link to open this profile as me (for testing) -->
+          <a href="./" class="text-xs text-gray-400 hover:text-gray-200 text-right underline">View my profile</a>
+        </div>
+      </div>
+    </section>
 
-        <section class="bg-gray-900 p-4 rounded shadow flex justify-around text-center">
-            <div>
-                <p data-profile-followers class="text-xl font-bold text-gray-100">0</p>
-                <p class="text-sm text-gray-200">Followers</p>
-            </div>
-            <div>
-                <p data-profile-following class="text-xl font-bold text-gray-100">0</p>
-                <p class="text-sm text-gray-200">Following</p>
-            </div>
-        </section>
+    <!-- Update section (only for my own profile) -->
+    <section data-my-controls class="bg-gray-900 p-4 md:p-6 rounded shadow hidden">
+      <h2 class="text-lg font-semibold text-gray-100 mb-3">Update profile</h2>
+      <form id="profileForm" class="grid gap-3 md:grid-cols-2">
+        <label class="md:col-span-2">
+          <span class="text-sm text-gray-300">Bio</span>
+          <textarea name="bio" rows="3" placeholder="Tell people about yourself"
+            class="w-full bg-gray-800 text-white p-2 rounded focus:outline-none"></textarea>
+        </label>
+        <label>
+          <span class="text-sm text-gray-300">Avatar URL</span>
+          <input name="avatarUrl" type="url" placeholder="https://…"
+            class="w-full bg-gray-800 text-white p-2 rounded focus:outline-none" />
+        </label>
+        <label>
+          <span class="text-sm text-gray-300">Avatar alt</span>
+          <input name="avatarAlt" type="text" placeholder="Me"
+            class="w-full bg-gray-800 text-white p-2 rounded focus:outline-none" />
+        </label>
+        <label>
+          <span class="text-sm text-gray-300">Banner URL</span>
+          <input name="bannerUrl" type="url" placeholder="https://…"
+            class="w-full bg-gray-800 text-white p-2 rounded focus:outline-none" />
+        </label>
+        <label>
+          <span class="text-sm text-gray-300">Banner alt</span>
+          <input name="bannerAlt" type="text" placeholder="My banner"
+            class="w-full bg-gray-800 text-white p-2 rounded focus:outline-none" />
+        </label>
 
-        <section data-profile-actions class="bg-gray-900 p-4 rounded shadow space-y-4 hidden">
-            <h3 class="text-lg font-semibold text-gray-100">Profile settings</h3>
-            <form data-profile-media class="space-y-3">
-                <p class="text-sm" data-profile-actions-feedback aria-live="polite"></p>
-                <div>
-                    <label class="block text-sm text-gray-300" for="avatarUrl">Avatar URL</label>
-                    <input id="avatarUrl" name="avatarUrl" type="url" placeholder="https://…"
-                        class="bg-gray-800 text-white w-full p-2 rounded focus:outline-none" />
-                </div>
-                <div>
-                    <label class="block text-sm text-gray-300" for="avatarAlt">Avatar description</label>
-                    <input id="avatarAlt" name="avatarAlt" type="text" placeholder="Avatar description"
-                        class="bg-gray-800 text-white w-full p-2 rounded focus:outline-none" />
-                </div>
-                <div>
-                    <label class="block text-sm text-gray-300" for="bannerUrl">Banner URL</label>
-                    <input id="bannerUrl" name="bannerUrl" type="url" placeholder="https://…"
-                        class="bg-gray-800 text-white w-full p-2 rounded focus:outline-none" />
-                </div>
-                <div>
-                    <label class="block text-sm text-gray-300" for="bannerAlt">Banner description</label>
-                    <input id="bannerAlt" name="bannerAlt" type="text" placeholder="Banner description"
-                        class="bg-gray-800 text-white w-full p-2 rounded focus:outline-none" />
-                </div>
-                <button type="submit" class="bg-yellow-400 px-4 py-2 rounded hover:bg-yellow-500">Update media</button>
-            </form>
-        </section>
+        <div class="md:col-span-2 flex items-center gap-3">
+          <button class="bg-yellow-400 hover:bg-yellow-500 px-4 py-2 rounded font-semibold">Save changes</button>
+          <p id="profileFb" class="text-sm text-yellow-300 min-h-[1.25rem]" aria-live="polite"></p>
+        </div>
+      </form>
+      <p class="text-xs text-gray-400 mt-2">Note: Image URLs must be public and reachable or the API will reject them.</p>
+    </section>
 
-        <p data-profile-feedback class="text-sm text-yellow-300 min-h-[1.25rem]" aria-live="polite"></p>
+    <!-- Posts -->
+    <section class="bg-gray-900 p-4 md:p-6 rounded shadow">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-bold text-gray-100">Posts</h2>
+        <div class="text-sm text-gray-300" id="postsMeta"></div>
+      </div>
+      <div id="postsList" class="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-3"></div>
+      <p id="postsFb" class="text-sm text-yellow-300 min-h-[1.25rem] mt-2" aria-live="polite"></p>
+    </section>
+  </main>
 
-        <section class="bg-gray-900 p-4 rounded shadow">
-            <h3 class="text-xl font-bold text-gray-100 text-center">Posts</h3>
-        </section>
-        <section data-profile-posts class="space-y-4"></section>
-    </main>
-    <script type="module" src="../js/script.js"></script>
+  <script type="module">
+  import { apiSocial, readJWT, requireAuth, logout, fmtDate } from '../js/script.js';
+  if (!requireAuth("../index.html")) throw new Error("unauthenticated");
+
+  // --- elements
+  const logoutBtn = document.querySelector('[data-logout]');
+  logoutBtn?.addEventListener('click', (e) => { e.preventDefault(); logout(); });
+
+  const params = new URLSearchParams(location.search);
+  const requestedName = params.get('name'); // viewing someone else?
+  const me = readJWT(); // { name, email }
+  const viewingMyself = !requestedName || requestedName === me?.name;
+  const profileNameToLoad = requestedName || me?.name;
+
+  const avatarEl = document.querySelector('[data-profile-avatar]');
+  const bannerEl = document.querySelector('[data-profile-banner]');
+  const nameEl = document.querySelector('[data-profile-name]');
+  const emailEl = document.querySelector('[data-profile-email]');
+  const bioEl = document.querySelector('[data-profile-bio]');
+  const cPosts = document.querySelector('[data-count-posts]');
+  const cFollowers = document.querySelector('[data-count-followers]');
+  const cFollowing = document.querySelector('[data-count-following]');
+  const followBtn = document.querySelector('[data-follow-toggle]');
+  const myControls = document.querySelector('[data-my-controls]');
+
+  const profileForm = document.getElementById('profileForm');
+  const profileFb = document.getElementById('profileFb');
+
+  const postsList = document.getElementById('postsList');
+  const postsFb = document.getElementById('postsFb');
+  const postsMeta = document.getElementById('postsMeta');
+
+  // --- helpers (use /social base for ALL these)
+  async function loadProfile(name) {
+    const { data: p } = await apiSocial(`/profiles/${encodeURIComponent(name)}`, {
+      query: { _followers: true, _following: true }
+    });
+    renderProfile(p);
+    if (viewingMyself) prefillMyForm(p);
+    return p;
+  }
+
+  function renderProfile(p) {
+    nameEl.textContent = p.name || "(unknown)";
+    emailEl.textContent = p.email || "";
+    bioEl.textContent = p.bio || "";
+    cPosts.textContent = p._count?.posts ?? 0;
+    cFollowers.textContent = p._count?.followers ?? 0;
+    cFollowing.textContent = p._count?.following ?? 0;
+
+    if (p.avatar?.url) avatarEl.src = p.avatar.url;
+    if (p.banner?.url) {
+      bannerEl.src = p.banner.url;
+      bannerEl.alt = p.banner.alt || "Profile banner";
+      bannerEl.classList.remove('hidden');
+    }
+
+    // Follow/unfollow visibility
+    if (!viewingMyself) {
+      followBtn.classList.remove('hidden');
+      const amIFollowing = Array.isArray(p.followers)
+        ? p.followers.some(f => f?.name === me?.name)
+        : false;
+      followBtn.dataset.state = amIFollowing ? 'following' : 'not-following';
+      followBtn.textContent = amIFollowing ? 'Unfollow' : 'Follow';
+    } else {
+      followBtn.classList.add('hidden');
+    }
+
+    // My controls
+    myControls.classList.toggle('hidden', !viewingMyself);
+  }
+
+  function prefillMyForm(p) {
+    profileForm.bio.value = p.bio || "";
+    profileForm.avatarUrl.value = p.avatar?.url || "";
+    profileForm.avatarAlt.value = p.avatar?.alt || "";
+    profileForm.bannerUrl.value = p.banner?.url || "";
+    profileForm.bannerAlt.value = p.banner?.alt || "";
+  }
+
+  async function loadPosts(name, page=1, limit=12) {
+    postsFb.textContent = "Loading posts…";
+    postsList.innerHTML = "";
+    const { data, meta } = await apiSocial(`/profiles/${encodeURIComponent(name)}/posts`, {
+      query: { page, limit }
+    });
+
+    if (!data?.length) {
+      postsList.innerHTML = `<p class="text-gray-300">No posts yet.</p>`;
+    } else {
+      postsList.innerHTML = data.map(p => `
+        <article class="bg-gray-800 rounded overflow-hidden shadow">
+          ${p.media?.url ? `<img src="${p.media.url}" alt="${p.media.alt||""}" class="w-full h-40 object-cover" />` : ``}
+          <div class="p-3 space-y-1">
+            <a href="../feed/post.html?id=${p.id}" class="text-yellow-300 font-semibold line-clamp-1">${p.title || "(untitled)"}</a>
+            <p class="text-xs text-gray-400">${fmtDate(p.created)}</p>
+            <div class="text-xs text-gray-300">#${(p.tags||[]).slice(0,3).join(' #')}</div>
+          </div>
+        </article>
+      `).join("");
+    }
+
+    if (meta) {
+      const { currentPage=page, pageCount=1, totalCount=0 } = meta;
+      postsMeta.textContent = `Page ${currentPage} of ${pageCount} · ${totalCount} post${totalCount===1?'':'s'}`;
+    }
+    postsFb.textContent = "";
+  }
+
+  async function updateProfile(name, payload) {
+    const { data } = await apiSocial(`/profiles/${encodeURIComponent(name)}`, {
+      method: "PUT",
+      body: JSON.stringify(payload),
+    });
+    return data;
+  }
+
+  async function follow(name) {
+    await apiSocial(`/profiles/${encodeURIComponent(name)}/follow`, { method: "PUT" });
+  }
+  async function unfollow(name) {
+    await apiSocial(`/profiles/${encodeURIComponent(name)}/unfollow`, { method: "PUT" });
+  }
+
+  // --- events
+  followBtn?.addEventListener('click', async () => {
+    try {
+      followBtn.disabled = true;
+      const state = followBtn.dataset.state;
+      if (state === 'following') {
+        await unfollow(profileNameToLoad);
+      } else {
+        await follow(profileNameToLoad);
+      }
+      const p = await loadProfile(profileNameToLoad);
+      renderProfile(p);
+    } catch (e) {
+      alert(e.message || "Could not update follow state.");
+    } finally {
+      followBtn.disabled = false;
+    }
+  });
+
+  profileForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    profileFb.textContent = "";
+    const fd = new FormData(profileForm);
+    const bio = String(fd.get('bio')||'').trim();
+    const avatarUrl = String(fd.get('avatarUrl')||'').trim();
+    const avatarAlt = String(fd.get('avatarAlt')||'').trim();
+    const bannerUrl = String(fd.get('bannerUrl')||'').trim();
+    const bannerAlt = String(fd.get('bannerAlt')||'').trim();
+
+    const payload = {};
+    if (bio) payload.bio = bio;
+    if (avatarUrl) payload.avatar = { url: avatarUrl, alt: avatarAlt || 'Avatar' };
+    if (bannerUrl) payload.banner = { url: bannerUrl, alt: bannerAlt || 'Banner' };
+
+    if (!Object.keys(payload).length) {
+      profileFb.textContent = "Nothing to update.";
+      return;
+    }
+
+    profileFb.textContent = "Saving…";
+    try {
+      const updated = await updateProfile(me.name, payload);
+      profileFb.textContent = "Updated!";
+      renderProfile(updated);
+    } catch (err) {
+      profileFb.textContent = err.message || "Update failed.";
+    }
+  });
+
+  // --- init
+  (async function init() {
+    try {
+      await loadProfile(profileNameToLoad);
+      await loadPosts(profileNameToLoad, 1, 12);
+    } catch (e) {
+      nameEl.textContent = "Failed to load profile";
+      emailEl.textContent = e.message || "";
+      postsFb.textContent = e.message || "Failed to load posts.";
+    }
+  })();
+</script>
+
 </body>
-
 </html>

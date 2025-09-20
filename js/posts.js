@@ -80,14 +80,12 @@ export async function deletePost(id) {
 }
 
 /**
- * React to a post with a symbol (❤️ 😀 👍 etc).
- * Uses PUT /posts/:id/react/:symbol
+ * React to a post with a symbol.
  * @param {string|number} id
  * @param {string} symbol
  * @returns {Promise<{data:any, meta:any}>}
- * @example
- * await reactToPost(123, "❤️");
  */
+
 export async function reactToPost(id, symbol = "❤️") {
   return apiSocial(`/posts/${encodeURIComponent(id)}/react/${encodeURIComponent(symbol)}`, {
     method: "PUT",
