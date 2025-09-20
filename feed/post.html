@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Post | Yapper</title>
+    <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body class="bg-gray-800 min-h-screen">
+    <main class="p-4 mt-4 max-w-2xl mx-auto space-y-6">
+        <section id="post"></section>
+    </main>
+    <script type="module">
+        import { apiRequest } from '../js/script.js';
+        const params = new URLSearchParams(window.location.search);
+        const postId = params.get('id');
+        const postSection = document.getElementById('post');
+        if (postId) {
+            apiRequest(`/posts/${postId}?_author=true&_comments=true&_reactions=true`)
+                .then(res => {
+                    const post = res.data;
+                    postSection.innerHTML = `
+                        <h1 class="text-2xl font-bold text-yellow-400">${post.title}</h1>
+                        <p class="text-gray-300">${post.body || ''}</p>
+                        ${post.media?.url ? `<img src="${post.media.url}" alt="${post.media.alt || ''}" class="w-full rounded my-4" />` : ''}
+                        <div class="text-xs text-gray-400 mb-2">Tags: ${post.tags?.join(', ') || 'None'}</div>
+                        <div class="text-xs text-gray-400">By: ${post.author?.name || 'Unknown'} | ${new Date(post.created).toLocaleString()}</div>
+                    `;
+                })
+                .catch(err => postSection.textContent = err.message || 'Failed to load post.');
+        }
+    </script>
+</body>
+</html>
