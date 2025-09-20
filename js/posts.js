@@ -80,19 +80,6 @@ export async function deletePost(id) {
 }
 
 /**
- * React to a post with a symbol.
- * @param {string|number} id
- * @param {string} symbol
- * @returns {Promise<{data:any, meta:any}>}
- */
-
-export async function reactToPost(id, symbol = "❤️") {
-  return apiSocial(`/posts/${encodeURIComponent(id)}/react/${encodeURIComponent(symbol)}`, {
-    method: "PUT",
-  });
-}
-
-/**
  * Create a comment on a post.
  * @param {string|number} id
  * @param {string} body

@@ -8,7 +8,7 @@ const TOKEN_KEY = "yapper_token";
 
 export const TOKEN = localStorage.getItem(TOKEN_KEY) || "";
 
-// ---------- utils (no DOM helpers) ----------
+// ---------- date/time  ----------
 export const fmtDate = (iso) =>
   new Date(iso).toLocaleString(undefined, {
     year: "numeric",
@@ -39,7 +39,7 @@ export function requireAuth(redirectTo = "../index.html") {
 /**
  * Core request helper returning {data, meta}.
  * Accepts absolute URLs or paths (joined to API_ROOT).
- * Adds JWT + API key automatically. Supports ?query & AbortSignal.
+ * Adds JWT + API key automatically. 
  * @template T
  * @param {string} pathOrUrl
  * @param {RequestInit & { query?: Record<string, string|number|boolean|undefined>, signal?: AbortSignal }} [init]
@@ -384,7 +384,7 @@ async function loadFeed() {
       ? { ...baseParams, q: state.q }
       : { ...baseParams, _tag: state._tag || undefined };
 
-    // IMPORTANT: use the /social base for feed endpoints
+    
     const { data, meta } = await apiSocial(endpoint, { query: params, signal });
 
     if (signal.aborted) return;
@@ -416,7 +416,6 @@ async function loadFeed() {
   }
 }
 
-// ---------- events (feed) ----------
 searchForms.forEach((form) => {
   form.addEventListener("submit", (e) => {
     e.preventDefault();
@@ -427,6 +426,7 @@ searchForms.forEach((form) => {
     loadFeed();
   });
 });
+
 
 if (desktopSearch) {
   let t;
