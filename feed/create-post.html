@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create Post | Yapper</title>
+    <meta name="description" content="Create a new post on Yapper." />
+    <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body class="bg-gray-800 min-h-screen" data-page="create-post">
+    <header class="bg-gray-900 shadow-md px-4 py-3 flex items-center justify-between md:px-8">
+        <a href="../feed/index.html" class="text-xl font-bold text-yellow-400">Yapper</a>
+    </header>
+    <main class="p-4 mt-4 max-w-2xl mx-auto space-y-6">
+        <form id="createPostForm" class="bg-gray-900 p-4 rounded shadow space-y-3">
+            <label class="block">
+                <span class="sr-only">Title</span>
+                <input type="text" name="title" required placeholder="Title"
+                    class="w-full border p-2 rounded focus:outline-none focus:ring focus:border-yellow-400 bg-gray-800 text-white" />
+            </label>
+            <label class="block">
+                <span class="sr-only">Body</span>
+                <textarea name="body" required placeholder="What's on your mind?" rows="3"
+                    class="w-full border p-2 rounded focus:outline-none focus:ring focus:border-yellow-400 bg-gray-800 text-white"></textarea>
+            </label>
+            <label class="block">
+                <span class="sr-only">Tags</span>
+                <input type="text" name="tags" placeholder="Tags (comma separated)"
+                    class="w-full border p-2 rounded focus:outline-none focus:ring focus:border-yellow-400 bg-gray-800 text-white" />
+            </label>
+            <label class="block">
+                <span class="sr-only">Image</span>
+                <input type="file" name="mediaFile" accept="image/*"
+                    class="w-full border p-2 rounded focus:outline-none focus:ring focus:border-yellow-400 bg-gray-800 text-white" />
+            </label>
+            <label class="block">
+                <span class="sr-only">Image description</span>
+                <input type="text" name="mediaAlt" placeholder="Image description (optional)"
+                    class="w-full border p-2 rounded focus:outline-none focus:ring focus:border-yellow-400 bg-gray-800 text-white" />
+            </label>
+            <label class="block">
+                <span class="sr-only">Image URL</span>
+                <input type="url" name="mediaUrl" placeholder="Image URL (optional)"
+                    class="w-full border p-2 rounded focus:outline-none focus:ring focus:border-yellow-400 bg-gray-800 text-white" />
+            </label>
+            <button type="submit" class="w-full bg-yellow-400 hover:bg-yellow-500 font-semibold p-2 rounded">Post</button>
+        </form>
+        <p class="text-sm text-yellow-300 min-h-[1.25rem]" id="postFeedback" aria-live="polite"></p>
+    </main>
+    <script type="module" src="../js/script.js"></script>
+    <script type="module">
+import { apiRequest } from '../js/script.js';
+
+document.getElementById('createPostForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
+    const feedback = document.getElementById('postFeedback');
+    feedback.textContent = '';
+    const form = event.currentTarget;
+    const formData = new FormData(form);
+
+    const title = formData.get('title').trim();
+    const body = formData.get('body').trim();
+    const tags = formData.get('tags').split(',').map(tag => tag.trim()).filter(Boolean);
+    const mediaUrl = formData.get('mediaUrl').trim();
+    const mediaAlt = formData.get('mediaAlt').trim();
+
+    const payload = { title, body, tags };
+    if (mediaUrl) {
+        payload.media = { url: mediaUrl, alt: mediaAlt || title };
+    }
+
+    feedback.textContent = 'Posting…';
+    try {
+        await apiRequest('/posts', { method: 'POST', body: payload });
+        feedback.textContent = 'Post created!';
+        setTimeout(() => window.location.href = '../feed/index.html', 1200);
+    } catch (error) {
+        feedback.textContent = error.message || 'Failed to create post.';
+    }
+});
+</script>
+</body>
+</html>
