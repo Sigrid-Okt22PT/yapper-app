@@ -1,77 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Feed | Yapper</title>
-    <meta name="description"
-        content="Yapper - A playful social media frontend built with Tailwind CSS. Create posts, like posts, view user profiles, and enjoy a minimal responsive design." />
-    <link rel="stylesheet" href="../css/style.css" />
-    <script>
-        // Set a valid token for testing (replace with your actual token if needed)
-        localStorage.setItem('yapper_token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1lIjoic2lnaHVzMTIyNTgiLCJlbWFpbCI6InNpZ2h1czEyMjU4QHN0dWQubm9yb2ZmLm5vIiwiaWF0IjoxNzU3NDUyNDczfQ.c4Q4uLi-suWo82ipiOATb0VFuFB7SDrQBC0v23zAUnE');
-    </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Feed | Yapper</title>
+  <meta name="description" content="Yapper feed" />
+  <link rel="stylesheet" href="../css/style.css" />
 </head>
-
 <body class="bg-gray-800 min-h-screen" data-page="feed">
-    <header class="bg-gray-900 shadow-md px-4 py-3 flex items-center justify-between md:px-8">
-        <a href="../" class="text-xl font-bold text-yellow-400">Yapper</a>
+  <header class="bg-gray-900 shadow-md px-4 py-3 flex items-center justify-between md:px-8">
+    <a href="../" class="text-xl font-bold text-yellow-400">Yapper</a>
 
-        <form data-search-form class="hidden md:flex items-center ml-6">
-            <label class="sr-only" for="desktop-search">Search posts</label>
-            <input id="desktop-search" name="search" type="search" placeholder="Search posts..."
-                class="p-2 rounded-l focus:outline-none bg-gray-800 text-white" />
-        </form>
+    <form data-search-form class="hidden md:flex items-center ml-6">
+      <label class="sr-only" for="desktop-search">Search posts</label>
+      <input id="desktop-search" name="search" type="search" placeholder="Search posts..."
+        class="p-2 rounded-l focus:outline-none bg-gray-800 text-white" />
+    </form>
 
-        <nav class="hidden md:flex space-x-6 text-sm items-center"></nav>
+    <nav class="hidden md:flex space-x-6 text-sm items-center">
+      <a href="./create-post.html" class="text-yellow-300 hover:text-gray-300 font-medium">New Post</a>
+      <a href="../profile/" class="text-yellow-300 hover:text-gray-300 font-medium">Profile</a>
+      <a href="#" data-logout class="text-yellow-300 hover:text-red-500 font-medium">Logout</a>
+    </nav>
 
-        <details class="md:hidden relative">
-            <summary class="cursor-pointer p-2 rounded focus:outline-none focus:ring-2 focus:ring-yellow-400 list-none">
-                <svg class="w-6 h-6 text-gray-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16">
-                    </path>
-                </svg>
-            </summary>
-            <div class="absolute right-0 mt-2 w-40 bg-gray-900 border rounded shadow-md py-2 z-10">
-                <a href="./" class="block text-yellow-300 px-4 py-2 hover:bg-gray-800 text-sm">Feed</a>
-                <a href="../profile/" class="block text-yellow-300 px-4 py-2 hover:bg-gray-800 text-sm">Profile</a>
-                <a href="#" data-logout class="block text-yellow-300 px-4 py-2 hover:bg-gray-800 text-sm text-red-500">Logout</a>
-            </div>
-        </details>
-    </header>
+    <details class="md:hidden relative">
+      <summary class="cursor-pointer p-2 rounded focus:outline-none focus:ring-2 focus:ring-yellow-400 list-none">
+        <svg class="w-6 h-6 text-gray-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </summary>
+      <div class="absolute right-0 mt-2 w-44 bg-gray-900 border rounded shadow-md py-2 z-10">
+        <a href="./" class="block text-yellow-300 px-4 py-2 hover:bg-gray-800 text-sm">Feed</a>
+        <a href="./create-post.html" class="block text-yellow-300 px-4 py-2 hover:bg-gray-800 text-sm">New Post</a>
+        <a href="../profile/" class="block text-yellow-300 px-4 py-2 hover:bg-gray-800 text-sm">Profile</a>
+        <a href="#" data-logout class="block text-yellow-300 px-4 py-2 hover:bg-gray-800 text-sm text-red-500">Logout</a>
+      </div>
+    </details>
+  </header>
 
-    <main class="p-4 mt-4 max-w-5xl mx-auto space-y-6">
-  <!-- Search (unchanged) -->
-  <form data-search-form class="flex gap-2 mb-4">
-    <input name="search" type="search" placeholder="Search posts..."
-      class="p-2 rounded bg-gray-800 text-white w-full" />
-    <button type="submit" class="bg-yellow-400 px-4 py-2 rounded font-semibold">Search</button>
-  </form>
+  <main class="p-4 mt-4 max-w-5xl mx-auto space-y-6">
+    <form data-search-form class="flex gap-2 mb-4">
+      <input name="search" type="search" placeholder="Search posts..." class="p-2 rounded bg-gray-800 text-white w-full" />
+      <button type="submit" class="bg-yellow-400 px-4 py-2 rounded font-semibold">Search</button>
+    </form>
 
-  <!-- Small toolbar: page size -->
-  <div class="flex items-center justify-end gap-3 text-sm">
-    <label class="text-yellow-300">Page size</label>
-    <select data-limit
-      class="bg-gray-900 border border-gray-700 text-yellow-300 rounded px-2 py-1">
-      <option value="12" selected> 12</option>
-      <option value="24">24</option>
-      <option value="48">48</option>
-    </select>
-  </div>
+    <div class="flex items-center justify-end gap-3 text-sm">
+      <label class="text-yellow-300">Page size</label>
+      <select data-limit class="bg-gray-900 border border-gray-700 text-yellow-300 rounded px-2 py-1">
+        <option value="12">12</option>
+        <option value="24" selected>24</option>
+        <option value="48">48</option>
+      </select>
+    </div>
 
-  <!-- Posts grid: 1 col on mobile, then up -->
-  <section data-posts class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></section>
+    <section data-posts class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></section>
+    <nav data-pagination class="flex items-center justify-between gap-2"></nav>
+    <p class="text-sm text-yellow-300 min-h-[1.25rem]" data-feed-feedback aria-live="polite"></p>
+  </main>
 
-  <!-- Pagination -->
-  <nav data-pagination class="flex items-center justify-between gap-2"></nav>
-
-  <p class="text-sm text-yellow-300 min-h-[1.25rem]" data-feed-feedback aria-live="polite"></p>
-</main>
-
-    <script type="module" src="../js/script.js"></script>
-    
+  <script type="module" src="../js/script.js"></script>
 </body>
-
 </html>

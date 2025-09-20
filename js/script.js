@@ -1,24 +1,23 @@
 // ../js/script.js
-// Feed | Yapper – Noroff Social v2 integration with true pagination
+// Yapper · Noroff Social v2 client helpers + Feed page logic (auth base fixed)
 
-const BASE_URL = "https://v2.api.noroff.dev/social";
+const API_ROOT = "https://v2.api.noroff.dev";          // root (auth lives here)
+const SOCIAL_BASE = API_ROOT + "/social";               // social (posts/profiles)
 const API_KEY = "f46433fb-6c5d-42f9-aa02-0751b52aa6fb";
-const TOKEN = localStorage.getItem("yapper_token");
+const TOKEN_KEY = "yapper_token";
 
-if (!TOKEN) {
-  console.warn("No JWT in localStorage.yapper_token — API calls will 401.");
-}
+export const TOKEN = localStorage.getItem(TOKEN_KEY) || "";
 
 // ---------- utils ----------
-const $ = (s, r = document) => r.querySelector(s);
-const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
-const el = (t, cls = "", html = "") => {
+export const $ = (s, r = document) => r.querySelector(s);
+export const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+export const el = (t, cls = "", html = "") => {
   const n = document.createElement(t);
   if (cls) n.className = cls;
   if (html) n.innerHTML = html;
   return n;
 };
-const fmtDate = (iso) =>
+export const fmtDate = (iso) =>
   new Date(iso).toLocaleString(undefined, {
     year: "numeric",
     month: "short",
@@ -27,56 +26,124 @@ const fmtDate = (iso) =>
     minute: "2-digit",
   });
 
+/** Decode JWT payload safely (returns {} on failure). */
+export function readJWT() {
+  try {
+    const [, payload] = (localStorage.getItem(TOKEN_KEY) || "").split(".");
+    return payload ? JSON.parse(atob(payload)) : {};
+  } catch {
+    return {};
+  }
+}
+
+export function requireAuth(redirectTo = "../index.html") {
+  if (!localStorage.getItem(TOKEN_KEY)) {
+    location.href = redirectTo;
+    return false;
+  }
+  return true;
+}
+
 /**
- * Noroff v2 request helper returning {data, meta}
+ * Core request helper returning {data, meta}.
+ * Accepts absolute URLs or paths (joined to API_ROOT).
+ * Adds JWT + API key automatically. Supports ?query & AbortSignal.
  * @template T
- * @param {string} path
- * @param {RequestInit & { query?: Record<string, string|number|boolean|undefined> }} [init]
+ * @param {string} pathOrUrl
+ * @param {RequestInit & { query?: Record<string, string|number|boolean|undefined>, signal?: AbortSignal }} [init]
  * @returns {Promise<{data:T, meta:any}>}
+ * @example
+ * const { data, meta } = await apiRequest("/auth/login", { method:"POST", body: JSON.stringify({...}) });
  */
-export async function apiRequest(path, init = {}) {
-  const url = new URL(BASE_URL + path);
+export async function apiRequest(pathOrUrl, init = {}) {
+  const full = pathOrUrl.startsWith("http") ? pathOrUrl : (API_ROOT + pathOrUrl);
+  const url = new URL(full);
+
   if (init.query) {
     for (const [k, v] of Object.entries(init.query)) {
       if (v !== undefined && v !== null && v !== "") url.searchParams.set(k, String(v));
     }
   }
+
   const headers = new Headers(init.headers || {});
   headers.set("Content-Type", "application/json");
-  if (TOKEN) headers.set("Authorization", `Bearer ${TOKEN}`);
+  const token = localStorage.getItem(TOKEN_KEY);
+  if (token) headers.set("Authorization", `Bearer ${token}`);
   headers.set("X-Noroff-API-Key", API_KEY);
 
-  const res = await fetch(url, { ...init, headers });
+  const res = await fetch(url, { ...init, headers, signal: init.signal });
   let json = null;
   try { json = await res.json(); } catch {}
   if (!res.ok) {
     const msg = json?.errors?.[0]?.message || res.statusText || "Request failed";
     const err = new Error(msg);
+    // @ts-ignore
     err.status = res.status;
+    // @ts-ignore
     err.payload = json;
     throw err;
   }
   return json ?? { data: null, meta: null };
 }
 
-// ---------- DOM ----------
+// Convenience wrappers so calls use the correct base automatically
+export const apiAuth   = (p, init)   => apiRequest(`/auth${p}`, init);           // e.g. apiAuth('/login')
+export const apiSocial = (p, init)   => apiRequest(`/social${p}`, init);         // e.g. apiSocial('/posts')
+
+// ---------- Auth API ----------
+export async function login({ email, password }) {
+  const { data } = await apiAuth("/login", {
+    method: "POST",
+    body: JSON.stringify({ email, password }),
+  });
+  localStorage.setItem(TOKEN_KEY, data?.accessToken);
+  return data;
+}
+
+export async function register({ name, email, password, avatar }) {
+  if (!/@(noroff\.no|stud\.noroff\.no)$/i.test(email)) {
+    throw new Error("Email must be @noroff.no or @stud.noroff.no");
+  }
+  const payload = { name, email, password };
+  if (avatar?.url) payload.avatar = avatar; // { url, alt? }
+  const { data } = await apiAuth("/register", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+  return data;
+}
+
+export function logout() {
+  localStorage.removeItem(TOKEN_KEY);
+  location.href = "../index.html";
+}
+
+// ---------- FEED PAGE ONLY ----------
 const postsGrid = document.querySelector("[data-posts]");
 const feedback = document.querySelector("[data-feed-feedback]");
 const searchForms = $$("form[data-search-form]");
 const desktopSearch = $("#desktop-search");
-const logoutBtn = document.querySelector("[data-logout]");
-const navDesktop = document.querySelector("header nav");
 const pagination = document.querySelector("[data-pagination]");
 const limitSelect = document.querySelector("[data-limit]");
+const logoutBtn = document.querySelector("[data-logout]");
+logoutBtn?.addEventListener("click", (e) => {
+  e.preventDefault();
+  logout();
+});
 
 // Mirror mobile nav on desktop (if empty)
+const navDesktop = document.querySelector("header nav");
 if (navDesktop && navDesktop.children.length === 0) {
   navDesktop.innerHTML = `
     <a href="./" class="text-yellow-300 hover:underline">Feed</a>
     <a href="../profile/" class="text-yellow-300 hover:underline">Profile</a>
+    <a href="./create-post.html" class="text-yellow-300 hover:underline">New Post</a>
     <button data-logout class="text-red-400 hover:underline">Logout</button>
   `;
-  navDesktop.querySelector("[data-logout]")?.addEventListener("click", handleLogout);
+  navDesktop.querySelector("[data-logout]")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    logout();
+  });
 }
 
 // ---------- state ----------
@@ -86,8 +153,9 @@ const state = {
   q: "",
   _tag: "",
   loading: false,
-  meta: null, // holds {currentPage, pageCount, ...}
+  meta: null,
 };
+let currentAbort = null;
 
 // ---------- UI helpers ----------
 function setFeedback(text = "") {
@@ -138,8 +206,14 @@ function renderPosts(posts) {
 
 function renderCard(p) {
   const {
-    id, title, body, media, created, author,
-    tags = [], _count = { comments: 0, reactions: 0 },
+    id,
+    title,
+    body,
+    media,
+    created,
+    author,
+    tags = [],
+    _count = { comments: 0, reactions: 0 },
   } = p;
 
   const imgUrl =
@@ -152,11 +226,14 @@ function renderCard(p) {
     "bg-gray-900 rounded-lg overflow-hidden shadow hover:shadow-lg transition"
   );
 
-  const tagChips = tags.slice(0, 4).map(
-    (t) => `<button type="button"
+  const tagChips = tags
+    .slice(0, 4)
+    .map(
+      (t) => `<button type="button"
             class="text-xs bg-gray-800 px-2 py-1 rounded hover:bg-gray-700"
             data-tag="${t}">#${t}</button>`
-  ).join(" ");
+    )
+    .join(" ");
 
   card.innerHTML = `
     <a href="../feed/post.html?id=${id}" class="block">
@@ -191,7 +268,7 @@ function renderCard(p) {
       state.page = 1;
       $("[name=search]")?.value && ($("[name=search]").value = "");
       desktopSearch && (desktopSearch.value = "");
-      loadFeed({ reset: true });
+      loadFeed();
       setFeedback(`Filtering by #${state._tag}`);
       window.scrollTo({ top: 0, behavior: "smooth" });
     })
@@ -204,13 +281,11 @@ function renderCard(p) {
 function renderPagination(meta) {
   if (!pagination) return;
   pagination.innerHTML = "";
+  if (!meta?.pageCount || meta.pageCount <= 1) return;
 
-  if (!meta?.pageCount || meta.pageCount <= 1) {
-    // Nothing to paginate
-    return;
-  }
-
-  const { currentPage, pageCount, totalCount } = meta;
+  const { currentPage = 1, pageCount = 1, totalCount } = meta;
+  const isFirstPage = currentPage <= 1;
+  const isLastPage = currentPage >= pageCount;
 
   const bar = el("div", "flex items-center gap-2 flex-wrap w-full");
 
@@ -219,17 +294,16 @@ function renderPagination(meta) {
     "bg-gray-900 text-yellow-300 border border-gray-700 px-3 py-1 rounded disabled:opacity-40",
     "Prev"
   );
-  prev.disabled = meta.isFirstPage;
+  prev.disabled = isFirstPage;
   prev.addEventListener("click", () => {
-    if (state.page > 1) {
+    if (!isFirstPage) {
       state.page -= 1;
-      loadFeed({ reset: true });
+      loadFeed();
       scrollToTop();
     }
   });
   bar.appendChild(prev);
 
-  // Window of page numbers around current
   const windowSize = 5;
   let start = Math.max(1, currentPage - Math.floor(windowSize / 2));
   let end = start + windowSize - 1;
@@ -237,14 +311,11 @@ function renderPagination(meta) {
     end = pageCount;
     start = Math.max(1, end - windowSize + 1);
   }
-
-  // Maybe show first and ellipsis
   if (start > 1) {
     bar.appendChild(pageBtn(1));
     if (start > 2) bar.appendChild(ellipsis());
   }
   for (let p = start; p <= end; p++) bar.appendChild(pageBtn(p));
-  // Maybe show ellipsis and last
   if (end < pageCount) {
     if (end < pageCount - 1) bar.appendChild(ellipsis());
     bar.appendChild(pageBtn(pageCount));
@@ -255,17 +326,16 @@ function renderPagination(meta) {
     "bg-gray-900 text-yellow-300 border border-gray-700 px-3 py-1 rounded disabled:opacity-40",
     "Next"
   );
-  next.disabled = meta.isLastPage;
+  next.disabled = isLastPage;
   next.addEventListener("click", () => {
-    if (state.page < pageCount) {
+    if (!isLastPage) {
       state.page += 1;
-      loadFeed({ reset: true });
+      loadFeed();
       scrollToTop();
     }
   });
   bar.appendChild(next);
 
-  // Right-aligned stats
   const stats = el(
     "div",
     "ml-auto text-xs text-yellow-300",
@@ -278,15 +348,18 @@ function renderPagination(meta) {
   function pageBtn(p) {
     const b = el(
       "button",
-      `min-w-8 px-3 py-1 rounded border ${p === currentPage
-        ? "bg-yellow-400 text-gray-900 border-yellow-400 font-semibold"
-        : "bg-gray-900 text-yellow-300 border-gray-700 hover:bg-gray-800"}`
-    , String(p));
+      `min-w-8 px-3 py-1 rounded border ${
+        p === currentPage
+          ? "bg-yellow-400 text-gray-900 border-yellow-400 font-semibold"
+          : "bg-gray-900 text-yellow-300 border-gray-700 hover:bg-gray-800"
+      }`,
+      String(p)
+    );
     b.disabled = p === currentPage;
     b.addEventListener("click", () => {
       if (state.page !== p) {
         state.page = p;
-        loadFeed({ reset: true });
+        loadFeed();
         scrollToTop();
       }
     });
@@ -294,38 +367,42 @@ function renderPagination(meta) {
   }
   function ellipsis() {
     return el("span", "px-1 text-yellow-300 select-none", "…");
-    }
+  }
 }
 
 function scrollToTop() {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-// ---------- data fetch ----------
-async function loadFeed({ reset = false } = {}) {
-  if (state.loading) return;
+// ---------- data fetch (feed) ----------
+async function loadFeed() {
+  if (!postsGrid) return;                // not on feed page
+  if (!requireAuth("../index.html")) return;
+
+  if (state.loading) currentAbort?.abort();
+  currentAbort = new AbortController();
+  const { signal } = currentAbort;
   state.loading = true;
 
   postsGrid.innerHTML = "";
   postsGrid.appendChild(skeletonCards(8));
   setFeedback("Loading…");
-  pagination.innerHTML = "";
+  pagination && (pagination.innerHTML = "");
 
   try {
-    const baseParams = {
-      page: state.page,
-      limit: state.limit,
-      _author: true,
-    };
+    const baseParams = { page: state.page, limit: state.limit, _author: true };
+    const endpoint = state.q ? "/posts/search" : "/posts";
+    const params = state.q
+      ? { ...baseParams, q: state.q }
+      : { ...baseParams, _tag: state._tag || undefined };
 
-    const json = state.q
-      ? await apiRequest("/posts/search", { query: { ...baseParams, q: state.q } })
-      : await apiRequest("/posts", { query: { ...baseParams, _tag: state._tag || undefined } });
+    // IMPORTANT: use the /social base for feed endpoints
+    const { data, meta } = await apiSocial(endpoint, { query: params, signal });
 
-    const { data, meta } = json;
+    if (signal.aborted) return;
+
     state.meta = meta || null;
-
-    renderPosts(data);
+    renderPosts(Array.isArray(data) ? data : []);
     renderPagination(meta);
 
     setFeedback(
@@ -338,6 +415,7 @@ async function loadFeed({ reset = false } = {}) {
         : "No posts found."
     );
   } catch (err) {
+    if (err.name === "AbortError") return;
     postsGrid.innerHTML = "";
     postsGrid.appendChild(
       emptyMessage(
@@ -350,37 +428,18 @@ async function loadFeed({ reset = false } = {}) {
   }
 }
 
-/**
- * Fetches posts from the API and renders them.
- * @param {string} [query] - Optional search query.
- * @returns {Promise<void>}
- * @example
- * fetchPosts('finance');
- */
-export async function fetchPosts(query = '') {
-    try {
-        const response = await apiRequest(url);
-        console.log('API response:', response); // Debugging output
-        const posts = Array.isArray(response?.data) ? response.data : [];
-        renderPosts(posts);
-    } catch (error) {
-        console.error('API error:', error); // Debugging output
-    }
-}
-
-// ---------- events ----------
+// ---------- events (feed) ----------
 searchForms.forEach((form) => {
   form.addEventListener("submit", (e) => {
     e.preventDefault();
     const fd = new FormData(form);
-    state.q = (fd.get("search") || "").toString().trim();
+    state.q = String(fd.get("search") || "").trim();
     state._tag = "";
     state.page = 1;
-    loadFeed({ reset: true });
+    loadFeed();
   });
 });
 
-// desktop live-search (debounced)
 if (desktopSearch) {
   let t;
   desktopSearch.addEventListener("input", () => {
@@ -389,32 +448,17 @@ if (desktopSearch) {
       state.q = desktopSearch.value.trim();
       state._tag = "";
       state.page = 1;
-      loadFeed({ reset: true });
+      loadFeed();
     }, 400);
   });
 }
 
-// page size
 limitSelect?.addEventListener("change", () => {
   state.limit = Number(limitSelect.value);
   state.page = 1;
-  loadFeed({ reset: true });
+  loadFeed();
 });
 
-// logout
-if (logoutBtn) logoutBtn.addEventListener("click", handleLogout);
-function handleLogout(e) {
-  e?.preventDefault?.();
-  localStorage.removeItem("yapper_token");
-  location.href = "../";
-}
-
-// init
-if (document.body?.dataset.page === "feed") {
-  loadFeed({ reset: true });
-}
-
-posts.forEach(({ id, title, body, media, tags }) => {
-    // Use destructured variables directly
-});
-
+// ---------- init by page ----------
+const page = document.body?.dataset.page;
+if (page === "feed") loadFeed();

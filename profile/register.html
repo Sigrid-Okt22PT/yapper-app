@@ -1,52 +1,128 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Register | Yapper</title>
-    <meta name="description" content="Register a new Yapper account." />
-    <link rel="stylesheet" href="../css/style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Register | Yapper</title>
+  <link rel="stylesheet" href="../css/style.css" />
 </head>
 <body class="flex items-center justify-center min-h-screen bg-gray-800" data-page="register">
-    <main class="w-full flex flex-col items-center gap-6">
-        <form id="registerForm" data-auth-form="register"
-            class="bg-gray-900 p-8 rounded-lg shadow-md w-full max-w-md space-y-4">
-            <h1 class="text-3xl font-bold text-center text-yellow-400">Yapper</h1>
-            <p class="text-center text-gray-300">Use your Noroff email address to register.</p>
-            <p class="text-sm text-center min-h-[1.25rem]" data-register-feedback aria-live="polite"></p>
-            <label class="block">
-                <span class="sr-only">Display name</span>
-                <input type="text" name="name" required placeholder="Display name"
-                    class="w-full border p-2 rounded focus:outline-none focus:ring focus:border-yellow-400 bg-gray-800 text-white" />
-            </label>
-            <label class="block">
-                <span class="sr-only">Email</span>
-                <input type="email" name="email" required placeholder="Email" autocomplete="email"
-                    class="w-full border p-2 rounded focus:outline-none focus:ring focus:border-yellow-400 bg-gray-800 text-white" />
-            </label>
-            <label class="block">
-                <span class="sr-only">Password</span>
-                <input type="password" name="password" required minlength="8" placeholder="Password"
-                    autocomplete="new-password"
-                    class="w-full border p-2 rounded focus:outline-none focus:ring focus:border-yellow-400 bg-gray-800 text-white" />
-            </label>
-            <label class="block">
-                <span class="sr-only">Avatar Image</span>
-                <input type="file" name="avatarFile" accept="image/*"
-                    class="w-full border p-2 rounded focus:outline-none focus:ring focus:border-yellow-400 bg-gray-800 text-white" />
-            </label>
-            <label class="block">
-                <span class="sr-only">Avatar description</span>
-                <input type="text" name="avatarAlt" placeholder="Avatar description (optional)"
-                    class="w-full border p-2 rounded focus:outline-none focus:ring focus:border-yellow-400 bg-gray-800 text-white" />
-            </label>
-            <button type="submit" class="w-full bg-yellow-400 hover:bg-yellow-500 font-semibold p-2 rounded">Register</button>
-            <p class="text-sm text-center text-gray-300">
-                Already have an account?
-                <a href="../index.html" class="text-yellow-400 hover:text-yellow-500 font-semibold">Login</a>
-            </p>
-        </form>
-    </main>
-    <script type="module" src="../js/script.js"></script>
+  <main class="w-full flex flex-col items-center justify-center gap-6 min-h-screen">
+    <form id="registerForm" class="bg-gray-900 p-8 rounded-lg shadow-md w-full max-w-md space-y-4 mx-auto">
+      <h1 class="text-3xl font-bold text-center text-yellow-400">Yapper</h1>
+      <p class="text-center text-gray-300">Use your Noroff email address to register.</p>
+      <p class="text-sm text-center min-h-[1.25rem]" id="registerFb" aria-live="polite"></p>
+
+      <label class="block">
+        <span class="sr-only">Display name</span>
+        <input type="text" name="name" required placeholder="Display name"
+          class="w-full border p-2 rounded focus:outline-none focus:ring focus:border-yellow-400 bg-gray-800 text-white" />
+      </label>
+
+      <label class="block">
+        <span class="sr-only">Email</span>
+        <input id="regEmail" type="email" name="email" required placeholder="Email" autocomplete="email"
+          class="w-full border p-2 rounded focus:outline-none focus:ring focus:border-yellow-400 bg-gray-800 text-white" />
+        <small id="emailHelp" class="block mt-1 text-xs text-gray-400">Must be @noroff.no or @stud.noroff.no</small>
+      </label>
+
+      <label class="block relative">
+        <span class="sr-only">Password</span>
+        <input id="regPwd" type="password" name="password" required minlength="8" placeholder="Password" autocomplete="new-password"
+          class="w-full border p-2 rounded pr-10 focus:outline-none focus:ring focus:border-yellow-400 bg-gray-800 text-white" />
+        <button id="toggleRegPwd" type="button" class="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-300 hover:text-gray-100">Show</button>
+        <small class="block mt-1 text-xs text-gray-400">Min 8 characters</small>
+      </label>
+
+      <label class="block">
+        <span class="sr-only">Avatar URL</span>
+        <input type="url" name="avatarUrl" placeholder="Avatar URL (optional)"
+          class="w-full border p-2 rounded focus:outline-none focus:ring focus:border-yellow-400 bg-gray-800 text-white" />
+      </label>
+
+      <label class="block">
+        <span class="sr-only">Avatar description</span>
+        <input type="text" name="avatarAlt" placeholder="Avatar description (optional)"
+          class="w-full border p-2 rounded focus:outline-none focus:ring focus:border-yellow-400 bg-gray-800 text-white" />
+      </label>
+
+      <button id="regBtn" class="w-full bg-yellow-400 hover:bg-yellow-500 font-semibold p-2 rounded">Register</button>
+
+      <p class="text-sm text-center text-gray-300">
+        Already have an account?
+        <a href="../index.html" class="text-yellow-400 hover:text-yellow-500 font-semibold">Login</a>
+      </p>
+    </form>
+  </main>
+
+  <script type="module">
+    import { register } from '../js/script.js';
+
+    // If already logged in, bounce to feed
+    if (localStorage.getItem('yapper_token')) {
+      location.href = '../feed/';
+    }
+
+    const form = document.getElementById('registerForm');
+    const fb = document.getElementById('registerFb');
+    const email = document.getElementById('regEmail');
+    const emailHelp = document.getElementById('emailHelp');
+    const pwd = document.getElementById('regPwd');
+    const toggle = document.getElementById('toggleRegPwd');
+    const btn = document.getElementById('regBtn');
+
+    // toggle password visibility
+    toggle.addEventListener('click', () => {
+      const isPw = pwd.type === 'password';
+      pwd.type = isPw ? 'text' : 'password';
+      toggle.textContent = isPw ? 'Hide' : 'Show';
+    });
+
+    function isNoroffMail(v) {
+      return /@(noroff\.no|stud\.noroff\.no)$/i.test(String(v||'').trim());
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      fb.textContent = "";
+      const fd = new FormData(form);
+
+      const payload = {
+        name: String(fd.get('name')||'').trim(),
+        email: String(fd.get('email')||'').trim(),
+        password: String(fd.get('password')||''),
+      };
+      const avatarUrl = String(fd.get('avatarUrl')||'').trim();
+      const avatarAlt = String(fd.get('avatarAlt')||'').trim();
+
+      // client side validation
+      if (!isNoroffMail(payload.email)) {
+        email.focus();
+        emailHelp.classList.remove('text-gray-400');
+        emailHelp.classList.add('text-red-400');
+        fb.textContent = "Email must be @noroff.no or @stud.noroff.no";
+        return;
+      } else {
+        emailHelp.classList.add('text-gray-400');
+        emailHelp.classList.remove('text-red-400');
+      }
+
+      if (avatarUrl) payload.avatar = { url: avatarUrl, alt: avatarAlt || payload.name };
+
+      btn.disabled = true;
+      btn.textContent = "Registering…";
+
+      try {
+        await register(payload);
+        fb.textContent = "Registered! You can now log in.";
+        setTimeout(()=> location.href = "../index.html", 800);
+      } catch (err) {
+        fb.textContent = err.message || "Registration failed.";
+      } finally {
+        btn.disabled = false;
+        btn.textContent = "Register";
+      }
+    });
+  </script>
 </body>
 </html>
