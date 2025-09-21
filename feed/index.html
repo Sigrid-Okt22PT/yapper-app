@@ -81,11 +81,17 @@
 
       <div class="flex items-center gap-2">
         <label for="sort" class="text-yellow-300">Sort by</label>
-        <select data-sort class="bg-gray-900 border border-gray-700 text-yellow-300 rounded px-2 py-1">
-             <option value="latest" selected>Latest</option>
-            <option value="popular">Popular</option>
+        <select
+          id="sort"
+          name="sort"
+          data-sort
+          class="bg-gray-900 border border-gray-700 text-yellow-300 rounded px-2 py-1"
+        >
+          <option value="latest" selected>Latest</option>
+          <option value="popular">Popular</option>
         </select>
       </div>
+
     </div>
 
     <!-- Posts grid (unchanged functionality, just spacing aligns with file 1) -->
