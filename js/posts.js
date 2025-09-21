@@ -1,6 +1,7 @@
 // ../js/posts.js
-// Post helpers for Yapper (Noroff Social v2)
+// js focused on JSDocs and API functions for posts
 // Requires apiSocial from ./script.js
+// Examples added by tooltips
 
 import { apiSocial } from "./script.js";
 
@@ -94,10 +95,11 @@ export async function createComment(id, body) {
   });
 }
 
+//ISSUE: Find out how to add delete comment button to each comment
+// and get the commentId to pass to deleteComment function
 /**
- * Delete a specific comment (if API supports it).
- * Some course APIs expose DELETE /posts/:postId/comment/:commentId.
- * If not available, omit using this and just leave the helper here as a reference.
+ * Delete a specific comment (alternate if I get it working).
+ * 
  * @param {string|number} postId
  * @param {string|number} commentId
  * @returns {Promise<void>}

@@ -2,7 +2,6 @@
 // Yapper · Noroff Social v2 client helpers + Feed page logic (auth base fixed)
 
 const API_ROOT = "https://v2.api.noroff.dev";          // root (auth lives here)
-const SOCIAL_BASE = API_ROOT + "/social";               // social (posts/profiles)
 const API_KEY = "f46433fb-6c5d-42f9-aa02-0751b52aa6fb";
 const TOKEN_KEY = "yapper_token";
 
@@ -18,7 +17,7 @@ export const fmtDate = (iso) =>
     minute: "2-digit",
   });
 
-/** Decode JWT payload safely (returns {} on failure). */
+/** Reads and decodes the JWT payload stored in localStorage. */
 export function readJWT() {
   try {
     const [, payload] = (localStorage.getItem(TOKEN_KEY) || "").split(".");
@@ -153,7 +152,7 @@ const state = {
 };
 let currentAbort = null;
 
-// ---------- UI helpers (vanilla DOM only) ----------
+// ---------- UI helpers ----------
 function setFeedback(text = "") {
   if (feedback) feedback.textContent = text;
 }
