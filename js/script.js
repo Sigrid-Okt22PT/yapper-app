@@ -190,8 +190,11 @@ function renderPosts(posts) {
     postsGrid.appendChild(emptyMessage());
     return;
   }
+
   const frag = document.createDocumentFragment();
-  for (const p of posts) frag.appendChild(renderCard(p));
+  for (const p of posts) {
+    frag.appendChild(renderCard(p));
+  }
   postsGrid.appendChild(frag);
 }
 
@@ -207,26 +210,30 @@ function renderCard(p) {
     _count = { comments: 0, reactions: 0 },
   } = p;
 
-  const imgUrl =
-    media?.url ||
-    `https://picsum.photos/seed/yap-${encodeURIComponent(id)}/600/360`;
+  // Build image (or placeholder) HTML
+  const hasImage = Boolean(media?.url);
   const alt = media?.alt || (title ? `Image for ${title}` : "Post image");
+  const imgHtml = hasImage
+    ? `<img src="${media.url}" alt="${alt}" class="w-full h-44 object-cover" loading="lazy">`
+    : `<div class="w-full h-44 bg-gray-700 flex items-center justify-center text-gray-400">
+         No image
+       </div>`;
 
-  const card = document.createElement("article");
-  card.className = "bg-gray-900 rounded-lg overflow-hidden shadow hover:shadow-lg transition";
-
+  // Limit tag chips to first 4
   const tagChips = tags
     .slice(0, 4)
     .map(
       (t) => `<button type="button"
-            class="text-xs bg-gray-800 px-2 py-1 rounded hover:bg-gray-700"
-            data-tag="${t}">#${t}</button>`
+                class="text-xs bg-gray-800 px-2 py-1 rounded hover:bg-gray-700"
+                data-tag="${t}">#${t}</button>`
     )
     .join(" ");
 
+  const card = document.createElement("article");
+  card.className = "bg-gray-900 rounded-lg overflow-hidden shadow hover:shadow-lg transition";
   card.innerHTML = `
     <a href="../feed/post.html?id=${id}" class="block">
-      <img src="${imgUrl}" alt="${alt}" class="w-full h-44 object-cover" loading="lazy">
+      ${imgHtml}
     </a>
     <div class="p-4 space-y-2">
       <a href="../feed/post.html?id=${id}" class="block">
@@ -252,12 +259,14 @@ function renderCard(p) {
   // Tag filtering
   Array.from(card.querySelectorAll("[data-tag]")).forEach((btn) =>
     btn.addEventListener("click", () => {
-      state._tag = btn.getAttribute("data-tag");
+      state._tag = btn.getAttribute("data-tag") || "";
       state.q = "";
       state.page = 1;
+
       const searchInput = document.querySelector("[name=search]");
       if (searchInput) searchInput.value = "";
       if (desktopSearch) desktopSearch.value = "";
+
       loadFeed();
       setFeedback(`Filtering by #${state._tag}`);
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -266,6 +275,7 @@ function renderCard(p) {
 
   return card;
 }
+
 
 // Build pagination UI (Prev, numbers, Next)
 function renderPagination(meta) {
