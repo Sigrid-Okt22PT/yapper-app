@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Post | Yapper</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="View a single post on Yapper" />
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body class="bg-gray-800 min-h-screen" data-page="post">
+  <!-- Header (matches Feed style) -->
+  <header class="bg-gray-900 shadow-md px-4 py-3 flex items-center justify-between md:px-8">
+    <a href="../" class="text-xl font-bold text-yellow-400">Yapper</a>
+
+
+    <!-- Desktop nav -->
+    <nav class="hidden md:flex space-x-6 text-sm items-center">
+      <a href="../feed/" class="text-yellow-300 hover:text-yellow-600 font-medium">Feed</a>
+      <a href="../feed/create-post.html" class="text-yellow-300 hover:text-yellow-600 font-medium">New Post</a>
+      <a href="../profile/" class="text-yellow-300 hover:text-yellow-600 font-medium">Profile</a>
+      <a href="#" data-logout class="text-yellow-300 hover:text-red-500 font-medium">Logout</a>
+    </nav>
+
+    <!-- Mobile menu -->
+    <details class="md:hidden relative">
+      <summary class="cursor-pointer p-2 rounded focus:outline-none focus:ring-2 focus:ring-yellow-400 list-none">
+        <svg class="w-6 h-6 text-gray-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </summary>
+      <div class="absolute right-0 mt-2 w-44 bg-gray-900 border border-gray-800 rounded shadow-md py-2 z-10">
+        <a href="../feed/" class="block text-yellow-300 px-4 py-2 hover:bg-gray-800 text-sm">Feed</a>
+        <a href="../feed/create-post.html" class="block text-yellow-300 px-4 py-2 hover:bg-gray-800 text-sm">New Post</a>
+        <a href="../profile/" class="block text-yellow-300 px-4 py-2 hover:bg-gray-800 text-sm">Profile</a>
+        <a href="#" data-logout class="block text-yellow-300 px-4 py-2 hover:bg-gray-800 text-sm hover:text-red-400">Logout</a>
+      </div>
+    </details>
+  </header>
+
+  <main class="p-4 mt-4 max-w-2xl mx-auto space-y-6">
+   
+
+    <!-- Post container -->
+    <section id="post" class="bg-gray-900 p-4 rounded shadow"></section>
+
+    <!-- Comments -->
+    <section class="bg-gray-900 p-4 rounded shadow">
+      <h2 class="text-lg font-semibold text-gray-100 mb-3">Comments</h2>
+      <form id="commentForm" class="flex gap-2">
+        <label class="sr-only" for="comment-input"> </label>
+        <input
+          id="comment-input"
+          name="comment"
+          placeholder="Write a comment…"
+          class="flex-1 p-2 rounded bg-gray-800 text-white"
+        />
+        <button class="bg-yellow-400 px-4 py-2 rounded font-semibold hover:bg-yellow-700">Post</button>
+      </form>
+      <div id="commentsList" class="mt-4 space-y-4"></div>
+    </section>
+
+    <p id="postFeedback" class="text-sm text-yellow-300 min-h-[1.25rem]" aria-live="polite"></p>
+  </main>
+
+  <script type="module">
+    import { requireAuth, readJWT, fmtDate } from '../js/script.js';
+    import { getPost, updatePost, deletePost, createComment, deleteComment } from '../js/posts.js';
+
+    if (!requireAuth("../index.html")) throw new Error("unauthenticated");
+
+    const id = new URLSearchParams(location.search).get("id");
+    const me = readJWT();
+    const box = document.getElementById('post');
+    const fb = document.getElementById('postFeedback');
+    const commentsList = document.getElementById('commentsList');
+
+    async function load() {
+      if (!id) { box.textContent = "Missing post id"; return; }
+
+      try {
+        const { data: p } = await getPost(id, { _author:true, _comments:true, _reactions:true });
+
+        const {
+          title = "(untitled)",
+          body = "",
+          media,
+          tags = [],
+          created,
+          author = {},
+          comments = []
+        } = p || {};
+        const isMine = author?.name === me?.name;
+
+        box.innerHTML = `
+          <h1 class="text-2xl font-bold text-yellow-400">${title}</h1>
+          <div class="text-xs text-gray-400 mb-2">By ${author?.name || "Unknown"} · ${fmtDate(created)}</div>
+          ${media?.url ? `<img src="${media.url}" alt="${media.alt || ""}" class="w-full rounded my-4" />` : ''}
+          <p class="text-gray-200 whitespace-pre-wrap">${body}</p>
+          <div class="text-xs text-gray-400 mt-2">Tags: ${tags.length ? tags.join(", ") : "None"}</div>
+
+          ${isMine ? `
+          <details class="mt-6">
+            <summary class="text-yellow-300">Edit post</summary>
+            <form id="editForm" class="mt-3 space-y-3">
+              <input name="title" class="w-full p-2 rounded bg-gray-800 text-white" placeholder="Title" value="${title}" />
+              <textarea name="body" rows="4" class="w-full p-2 rounded bg-gray-800 text-white" placeholder="Body">${body}</textarea>
+              <input name="tags" class="w-full p-2 rounded bg-gray-800 text-white" placeholder="tag1, tag2" value="${tags.join(", ")}" />
+              <input name="mediaUrl" class="w-full p-2 rounded bg-gray-800 text-white" placeholder="Image URL" value="${media?.url || ""}" />
+              <input name="mediaAlt" class="w-full p-2 rounded bg-gray-800 text-white" placeholder="Image alt" value="${media?.alt || ""}" />
+              <div class="flex gap-2">
+                <button class="bg-yellow-400 px-4 py-2 rounded hover:bg-yellow-700">Save</button>
+                <button id="deleteBtn" type="button" class="bg-red-500 px-4 py-2 rounded text-white hover:bg-red-600">Delete</button>
+              </div>
+            </form>
+          </details>
+          ` : ``}
+        `;
+
+        // comments render (testing)
+        commentsList.innerHTML = comments.length
+          ? comments.map(({ body, created, author }) => `
+              <article class="bg-gray-800 p-3 rounded">
+                <div class="text-base text-gray-200">${body}</div>
+                <div class="text-xs text-gray-400 mt-1">by ${author?.name || "Unknown"} · ${fmtDate(created)}</div>
+                <!-- <button id="deleteComBtn" type="button" class="bg-red-500 px-4 py-2 rounded text-white hover:bg-red-600">Delete</button> -->
+              </article>
+            `).join("")
+          : `<p class="text-gray-300">No comments yet.</p>`;
+
+        if (isMine) {
+          document.getElementById('editForm')?.addEventListener('submit', onEdit);
+          document.getElementById('deleteBtn')?.addEventListener('click', onDelete);
+          //document.getElementById('deleteComBtn')?.addEventListener('click', onDeleteComment);
+        }
+      } catch (err) {
+        box.textContent = err.message || 'Failed to load post.';
+      }
+    }
+
+    /** Edit posts */
+    async function onEdit(e) {
+      e.preventDefault();
+      fb.textContent = "Saving…";
+      const fd = new FormData(e.currentTarget);
+
+      const title = String(fd.get('title')||'').trim();
+      const body  = String(fd.get('body') ||'').trim();
+      const tags  = String(fd.get('tags') ||'')
+        .split(',').map(t=>t.trim()).filter(Boolean);
+
+      const mediaUrl = String(fd.get('mediaUrl')||'').trim();
+      const mediaAlt = String(fd.get('mediaAlt')||'').trim();
+
+      const payload = { title, body, tags };
+      if (mediaUrl) payload.media = { url: mediaUrl, alt: mediaAlt || title };
+
+      try {
+        await updatePost(id, payload);
+        fb.textContent = "Saved!";
+        await load();
+      } catch (err) {
+        fb.textContent = err.message || "Failed to save.";
+      }
+    }
+    
+
+    async function onDelete() {
+      if (!confirm("Delete this post?")) return;
+      fb.textContent = "Deleting…";
+      try {
+        await deletePost(id);
+        fb.textContent = "Deleted.";
+        setTimeout(()=>location.href="../feed/", 600);
+      } catch (err) {
+        fb.textContent = err.message || "Failed to delete.";
+      }
+    }
+
+    // Comments
+    document.getElementById("commentForm")?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const text = new FormData(e.currentTarget).get("comment");
+      if (!String(text).trim()) return;
+      try {
+        await createComment(id, String(text));
+        e.currentTarget.reset();
+        await load();
+      } catch (err) {
+        fb.textContent = err.message || "Failed to comment.";
+      }
+    });
+
+   /* async function onDeleteComment() {
+      if (!confirm("Delete this comment?")) return;
+      fb.textContent = "Deleting…";
+      try {
+        await deleteComment(commentId);
+        fb.textContent = "Deleted.";
+        setTimeout(()=>location.href="../feed/", 600);
+      } catch (err) {
+        fb.textContent = err.message || "Failed to delete.";
+      }
+    }
+    */
+    load();
+  </script>
+</body>
+</html>
